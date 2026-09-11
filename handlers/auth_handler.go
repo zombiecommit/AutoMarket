@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"AutoMarket/services"
@@ -9,37 +8,45 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type registroRequest struct {
-	Nombre     string `json:"nombre"`
+type loginRequest struct {
 	Correo     string `json:"correo"`
 	Contrasena string `json:"contrasena"`
 }
 
-func RegistrarUsuario(c *gin.Context) {
-	var request registroRequest
+func IniciarSesion(c *gin.Context) {
+	var request loginRequest
 
-	if err := json.NewDecoder(c.Request.Body).Decode(&request); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "el cuerpo de la solicitud debe ser un JSON válido",
 		})
 		return
 	}
 
-	usuario, err := services.RegistrarUsuario(
-		request.Nombre,
+	usuario, err := services.AutenticarUsuario(
 		request.Correo,
 		request.Contrasena,
 	)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"mensaje": "usuario registrado correctamente",
+	token, err := services.CrearSesion(usuario)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje": "inicio de sesión exitoso",
+		"token":   token,
 		"usuario": gin.H{
 			"id":     usuario.ID,
 			"nombre": usuario.Nombre,

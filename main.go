@@ -16,6 +16,7 @@ func main() {
 	})
 
 	router.POST("/usuarios", handlers.RegistrarUsuario)
+	router.POST("/login", handlers.IniciarSesion)
 
 	router.Run(":8080")
 }
