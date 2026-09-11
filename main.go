@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-    fmt.Println("AutoMarket funcionando")
+	router := gin.Default()
+
+	router.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "AutoMarket funcionando")
+	})
+
+	router.Run(":8080")
 }
