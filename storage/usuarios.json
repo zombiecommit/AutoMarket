@@ -1,1 +1,9 @@
-[]
+[
+    {
+        "id": 1,
+        "nombre": "Juan",
+        "correo": "juan@test.com",
+        "contrasena_hash": "wudEVaGdfNdgp9KPMRBz4w==:I5TVgV+AM8+ourPceb5Sybmb5qrAPJbJU4Nx1pa5qag=",
+        "rol": "vendedor"
+    }
+]

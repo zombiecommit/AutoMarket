@@ -1,6 +1,8 @@
 package main
 
 import (
+	"AutoMarket/middleware"
+	"AutoMarket/services"
 	"net/http"
 
 	"AutoMarket/handlers"
@@ -15,8 +17,23 @@ func main() {
 		c.String(http.StatusOK, "AutoMarket funcionando")
 	})
 
-	router.POST("/usuarios", handlers.RegistrarUsuario)
-	router.POST("/login", handlers.IniciarSesion)
+	router.POST(
+		"/usuarios",
+		middleware.RegistrarAccounting(
+			services.OpRegistrarUsuario,
+			"usuario",
+		),
+		handlers.RegistrarUsuario,
+	)
+
+	router.POST(
+		"/login",
+		middleware.RegistrarAccounting(
+			services.OpIniciarSesion,
+			"autenticacion",
+		),
+		handlers.IniciarSesion,
+	)
 
 	router.Run(":8080")
 }
