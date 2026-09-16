@@ -59,12 +59,12 @@ func SetupRouter() *gin.Engine {
 	// BLOQUE: rutas de vendedor (requieren autenticacion + permiso)
 	router.POST(
 		"/vehiculos",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpPublicarVehiculo),
 		middleware.RegistrarAccounting(
 			services.OpPublicarVehiculo,
 			"vehiculo",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpPublicarVehiculo),
 		handlers.PublicarVehiculo,
 	)
 
