@@ -16,3 +16,52 @@ Content-Type: application/json
   "correo": "juan@test.com",
   "contrasena": "123456"
 }
+
+### Consultar catálogo (visitante, no requiere token)
+
+GET http://localhost:8080/catalogo
+
+### Consultar información de contacto (visitante, no requiere token)
+
+GET http://localhost:8080/contacto
+
+### Publicar vehículo (vendedor, requiere token del login)
+# Reemplaza {{token}} por el valor "token" que devolvió el login
+
+POST http://localhost:8080/vehiculos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "marca": "Mazda",
+  "modelo": "3",
+  "anio": 2020,
+  "precio": 60000000,
+  "descripcion": "Full equipo, único dueño"
+}
+
+### Ver mis publicaciones (vendedor)
+
+GET http://localhost:8080/vehiculos/mios
+Authorization: Bearer {{token}}
+
+### Reportar vehículo vendido (vendedor, dueño de la publicación)
+# Reemplaza {{id}} por el id del vehículo
+
+PATCH http://localhost:8080/vehiculos/{{id}}/vender
+Authorization: Bearer {{token}}
+
+### Autorizar publicación (administrador)
+
+PATCH http://localhost:8080/vehiculos/{{id}}/autorizar
+Authorization: Bearer {{token_admin}}
+
+### Eliminar publicación (administrador)
+
+DELETE http://localhost:8080/vehiculos/{{id}}
+Authorization: Bearer {{token_admin}}
+
+### Eliminar usuario (administrador)
+
+DELETE http://localhost:8080/usuarios/{{id}}
+Authorization: Bearer {{token_admin}}

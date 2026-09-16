@@ -55,6 +55,31 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 	return nuevoUsuario, nil
 }
 
+// BLOQUE: eliminar usuario (administrador)
+func EliminarUsuario(usuarioID int) error {
+	usuarios, err := storage.CargarUsuarios()
+	if err != nil {
+		return err
+	}
+
+	indice := -1
+
+	for i, usuario := range usuarios {
+		if usuario.ID == usuarioID {
+			indice = i
+			break
+		}
+	}
+
+	if indice == -1 {
+		return errors.New("usuario no encontrado")
+	}
+
+	usuarios = append(usuarios[:indice], usuarios[indice+1:]...)
+
+	return storage.GuardarUsuarios(usuarios)
+}
+
 func siguienteID(usuarios []models.Usuario) int {
 	mayorID := 0
 

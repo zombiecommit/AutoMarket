@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"AutoMarket/services"
 
@@ -46,5 +47,27 @@ func RegistrarUsuario(c *gin.Context) {
 			"correo": usuario.Correo,
 			"rol":    usuario.Rol,
 		},
+	})
+}
+
+// BLOQUE: eliminar usuario (administrador)
+func EliminarUsuario(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "el id del usuario es inválido",
+		})
+		return
+	}
+
+	if err := services.EliminarUsuario(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje": "usuario eliminado correctamente",
 	})
 }
