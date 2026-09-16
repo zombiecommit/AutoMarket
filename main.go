@@ -70,57 +70,57 @@ func SetupRouter() *gin.Engine {
 
 	router.GET(
 		"/vehiculos/mios",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpVerPublicacionesPropias),
 		middleware.RegistrarAccounting(
 			services.OpVerPublicacionesPropias,
 			"vehiculo",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpVerPublicacionesPropias),
 		handlers.VerMisPublicaciones,
 	)
 
 	router.PATCH(
 		"/vehiculos/:id/vender",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpReportarVenta),
 		middleware.RegistrarAccounting(
 			services.OpReportarVenta,
 			"vehiculo",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpReportarVenta),
 		handlers.ReportarVenta,
 	)
 
 	// BLOQUE: rutas de administrador (requieren autenticacion + permiso)
 	router.PATCH(
 		"/vehiculos/:id/autorizar",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpAutorizarPublicacion),
 		middleware.RegistrarAccounting(
 			services.OpAutorizarPublicacion,
 			"vehiculo",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpAutorizarPublicacion),
 		handlers.AutorizarPublicacion,
 	)
 
 	router.DELETE(
 		"/vehiculos/:id",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpEliminarPublicacion),
 		middleware.RegistrarAccounting(
 			services.OpEliminarPublicacion,
 			"vehiculo",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpEliminarPublicacion),
 		handlers.EliminarPublicacion,
 	)
 
 	router.DELETE(
 		"/usuarios/:id",
-		middleware.Autenticar(),
-		middleware.RequerirPermiso(services.OpEliminarUsuario),
 		middleware.RegistrarAccounting(
 			services.OpEliminarUsuario,
 			"usuario",
 		),
+		middleware.Autenticar(),
+		middleware.RequerirPermiso(services.OpEliminarUsuario),
 		handlers.EliminarUsuario,
 	)
 
