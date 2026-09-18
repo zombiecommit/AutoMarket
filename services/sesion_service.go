@@ -47,3 +47,14 @@ func ObtenerSesion(token string) (Sesion, bool) {
 
 	return sesion, existe
 }
+
+func InvalidarSesionesUsuario(usuarioID int) {
+	sesionesMu.Lock()
+	defer sesionesMu.Unlock()
+
+	for token, sesion := range sesiones {
+		if sesion.Usuario.ID == usuarioID {
+			delete(sesiones, token)
+		}
+	}
+}

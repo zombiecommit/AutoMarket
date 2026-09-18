@@ -427,6 +427,67 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		}
 	})
 
+	t.Run("un usuario eliminado no puede usar su sesión anterior", func(t *testing.T) {
+		correo := fmt.Sprintf("sesion-invalida.%d@automarket.test", os.Getpid())
+
+		token, idUsuario := registrarYLoguear(t, router, correo)
+
+		ruta := fmt.Sprintf("/usuarios/%d", int(idUsuario))
+		respuestaEliminar := hacerPeticion(router, http.MethodDelete, ruta, tokenAdmin, nil)
+
+		if respuestaEliminar.Code != http.StatusOK {
+			t.Fatalf(
+				"se esperaba 200 al eliminar el usuario, se obtuvo %d: %s",
+				respuestaEliminar.Code,
+				respuestaEliminar.Body.String(),
+			)
+		}
+
+		respuestaProtegida := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/vehiculos",
+			token,
+			map[string]any{
+				"marca":  "Toyota",
+				"modelo": "Corolla",
+				"anio":   2022,
+				"precio": 55000000,
+			},
+		)
+
+		if respuestaProtegida.Code != http.StatusUnauthorized {
+			t.Fatalf(
+				"se esperaba 401 al usar el token de un usuario eliminado, se obtuvo %d: %s",
+				respuestaProtegida.Code,
+				respuestaProtegida.Body.String(),
+			)
+		}
+	})
+
+	t.Run("un token inválido no permite acceder a un recurso protegido", func(t *testing.T) {
+		respuesta := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/vehiculos",
+			"token-invalido",
+			map[string]any{
+				"marca":  "Toyota",
+				"modelo": "Corolla",
+				"anio":   2022,
+				"precio": 55000000,
+			},
+		)
+
+		if respuesta.Code != http.StatusUnauthorized {
+			t.Fatalf(
+				"se esperaba 401 con un token inválido, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
 	t.Run("las rutas anteriores de autenticación siguen funcionando igual", func(t *testing.T) {
 		// Regresión: /usuarios y /login (hechas por tus compañeros) no deben
 		// haberse roto con los cambios de este módulo.
