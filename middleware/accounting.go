@@ -9,11 +9,13 @@ import (
 func RegistrarAccounting(operacion, recurso string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		c.Next() // Dejar que la petición continúe
+		c.Next()
 
-		usuario, autenticado := ObtenerUsuarioDeContexto(c) // Intentamos obtener el usuario autenticado
+		usuario, autenticado := ObtenerUsuarioDeContexto(c)
 
-		exito := c.Writer.Status() >= 200 && c.Writer.Status() < 400 // Considera exitosa una respuesta entre 200 y 399
+		recursoID := c.Param("id")
+
+		exito := c.Writer.Status() >= 200 && c.Writer.Status() < 400
 
 		var err error
 
@@ -22,12 +24,14 @@ func RegistrarAccounting(operacion, recurso string) gin.HandlerFunc {
 				usuario,
 				operacion,
 				recurso,
+				recursoID,
 				exito,
 			)
 		} else {
 			err = services.RegistrarOperacionSinAutenticar(
 				operacion,
 				recurso,
+				recursoID,
 				exito,
 			)
 		}

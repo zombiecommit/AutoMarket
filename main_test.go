@@ -21,7 +21,7 @@ import (
 const (
 	rutaUsuariosJSON   = "storage/usuarios.json"
 	rutaVehiculosJSON  = "storage/vehiculos.json"
-	rutaAccountingJSON = "accounting.json" // así está definido en storage/accounting.go
+	rutaAccountingJSON = "accounting.json" // Así está definido en storage/accounting.go
 )
 
 func snapshotArchivo(t *testing.T, ruta string) (existia bool, contenido []byte) {

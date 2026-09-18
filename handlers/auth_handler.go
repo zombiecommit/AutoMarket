@@ -44,6 +44,8 @@ func IniciarSesion(c *gin.Context) {
 		return
 	}
 
+	c.Set("usuario", usuario)
+
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "inicio de sesión exitoso",
 		"token":   token,
