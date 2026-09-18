@@ -68,18 +68,40 @@ func RegistrarVehiculo(
 
 // BLOQUE: consultar catalogo (visitante / publico)
 // Solo se muestran las publicaciones ya autorizadas por el administrador.
-func ObtenerCatalogo() ([]models.Vehiculo, error) {
+// Cada vehiculo se devuelve junto con los datos de contacto del vendedor
+// que lo publico.
+func ObtenerCatalogo() ([]models.VehiculoPublico, error) {
 	vehiculos, err := storage.CargarVehiculos()
 	if err != nil {
 		return nil, err
 	}
 
-	catalogo := make([]models.Vehiculo, 0)
+	usuarios, err := storage.CargarUsuarios()
+	if err != nil {
+		return nil, err
+	}
+
+	vendedoresPorID := make(map[int]models.Usuario, len(usuarios))
+	for _, usuario := range usuarios {
+		vendedoresPorID[usuario.ID] = usuario
+	}
+
+	catalogo := make([]models.VehiculoPublico, 0)
 
 	for _, vehiculo := range vehiculos {
-		if vehiculo.Estado == EstadoPublicado {
-			catalogo = append(catalogo, vehiculo)
+		if vehiculo.Estado != EstadoPublicado {
+			continue
 		}
+
+		vendedor := vendedoresPorID[vehiculo.VendedorID]
+
+		catalogo = append(catalogo, models.VehiculoPublico{
+			Vehiculo: vehiculo,
+			Vendedor: models.ContactoVendedor{
+				Nombre: vendedor.Nombre,
+				Correo: vendedor.Correo,
+			},
+		})
 	}
 
 	return catalogo, nil

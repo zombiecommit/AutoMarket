@@ -10,7 +10,6 @@ const (
 //BLOQUE: operaciones protegidas
 const (
 	OpConsultarCatalogo       = "CONSULTAR_CATALOGO"
-	OpConsultarContacto       = "CONSULTAR_CONTACTO"
 	OpPublicarVehiculo        = "PUBLICAR_VEHICULO"
 	OpVerPublicacionesPropias = "VER_PUBLICACIONES_PROPIAS"
 	OpReportarVenta           = "REPORTAR_VENTA"
@@ -23,7 +22,6 @@ const (
 var permisosPorRol = map[string]map[string]bool{
 	RolVisitante: {
 		OpConsultarCatalogo: true,
-		OpConsultarContacto: true,
 	},
 	RolVendedor: {
 		OpPublicarVehiculo:        true,

@@ -235,19 +235,6 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		}
 	})
 
-	t.Run("visitante puede consultar información de contacto sin autenticarse", func(t *testing.T) {
-		respuesta := hacerPeticion(router, http.MethodGet, "/contacto", "", nil)
-
-		if respuesta.Code != http.StatusOK {
-			t.Fatalf("se esperaba 200, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
-		}
-
-		cuerpo := decodificar(t, respuesta)
-		if cuerpo["correo"] == nil {
-			t.Error("se esperaba información de contacto con un correo")
-		}
-	})
-
 	t.Run("sin token no se puede publicar un vehículo", func(t *testing.T) {
 		respuesta := hacerPeticion(router, http.MethodPost, "/vehiculos", "", map[string]any{
 			"marca": "Mazda", "modelo": "3", "anio": 2020, "precio": 60000000,

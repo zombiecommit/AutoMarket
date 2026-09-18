@@ -3,7 +3,6 @@ package main
 import (
 	"AutoMarket/middleware"
 	"AutoMarket/services"
-	"net/http"
 
 	"AutoMarket/handlers"
 
@@ -14,10 +13,6 @@ import (
 // (se separa de main() para poder probarlo con httptest en los tests)
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "AutoMarket funcionando")
-	})
 
 	router.POST(
 		"/usuarios",
@@ -45,15 +40,6 @@ func SetupRouter() *gin.Engine {
 			"vehiculo",
 		),
 		handlers.ConsultarCatalogo,
-	)
-
-	router.GET(
-		"/contacto",
-		middleware.RegistrarAccounting(
-			services.OpConsultarContacto,
-			"contacto",
-		),
-		handlers.ConsultarContacto,
 	)
 
 	// BLOQUE: rutas de vendedor (requieren autenticacion + permiso)
