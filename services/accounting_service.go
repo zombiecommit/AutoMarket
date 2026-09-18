@@ -14,6 +14,7 @@ func RegistrarOperacion(
 	usuario models.Usuario,
 	operacion string,
 	recurso string,
+	recursoID string,
 	exito bool,
 ) error {
 	return storage.RegistrarAccounting(
@@ -21,13 +22,14 @@ func RegistrarOperacion(
 		usuario.Rol,
 		operacion,
 		recurso,
+		recursoID,
 		exito,
 	)
 }
-
 func RegistrarOperacionSinAutenticar(
 	operacion string,
 	recurso string,
+	recursoID string,
 	exito bool,
 ) error {
 	return storage.RegistrarAccounting(
@@ -35,6 +37,7 @@ func RegistrarOperacionSinAutenticar(
 		RolVisitante,
 		operacion,
 		recurso,
+		recursoID,
 		exito,
 	)
 }

@@ -11,6 +11,7 @@ func TestRegistrarAccounting(t *testing.T) {
 		"vendedor",
 		"LOGIN",
 		"autenticacion",
+		"",
 		true,
 	)
 
@@ -36,6 +37,13 @@ func TestRegistrarAccounting(t *testing.T) {
 		t.Errorf(
 			"se esperaba operación LOGIN, se obtuvo %s",
 			registros[0].Operacion,
+		)
+	}
+
+	if registros[0].RecursoID != "" {
+		t.Errorf(
+			"se esperaba RecursoID vacío, se obtuvo %s",
+			registros[0].RecursoID,
 		)
 	}
 

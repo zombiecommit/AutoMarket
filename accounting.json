@@ -1,0 +1,101 @@
+[
+    {
+        "id": 1,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "REGISTRAR_USUARIO",
+        "recurso": "usuario",
+        "fecha_hora": "2026-09-14T20:30:26.0976353Z",
+        "exito": true,
+        "hash_anterior": "",
+        "hash": "9000efcf95e34336a529798447623dd1ba972066fc25a1be289b880c962fb4a4"
+    },
+    {
+        "id": 2,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "REGISTRAR_USUARIO",
+        "recurso": "usuario",
+        "fecha_hora": "2026-09-14T20:32:27.1953887Z",
+        "exito": false,
+        "hash_anterior": "9000efcf95e34336a529798447623dd1ba972066fc25a1be289b880c962fb4a4",
+        "hash": "fdbd5b5ed0a9553a5e9439e8d523fb35de6c5882325aca45f4c50add5e04d292"
+    },
+    {
+        "id": 3,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "REGISTRAR_USUARIO",
+        "recurso": "usuario",
+        "fecha_hora": "2026-09-14T20:33:14.3751155Z",
+        "exito": false,
+        "hash_anterior": "fdbd5b5ed0a9553a5e9439e8d523fb35de6c5882325aca45f4c50add5e04d292",
+        "hash": "5f42c90234a31f75d67c4feb4d933272858e225cb69cacde6c092e082e1981c0"
+    },
+    {
+        "id": 4,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-14T20:37:11.559798Z",
+        "exito": true,
+        "hash_anterior": "5f42c90234a31f75d67c4feb4d933272858e225cb69cacde6c092e082e1981c0",
+        "hash": "d118bf83ec85c8b9a026bf556fe045bad72f846337729a1346af6be4033b8b2b"
+    },
+    {
+        "id": 5,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-15T19:02:51.591131Z",
+        "exito": true,
+        "hash_anterior": "d118bf83ec85c8b9a026bf556fe045bad72f846337729a1346af6be4033b8b2b",
+        "hash": "71d8119ae3cd96682ac2a85f723c348c3ab3e924bf6c493c1fb73ebff3c1ca61"
+    },
+    {
+        "id": 6,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-15T19:06:11.8392063Z",
+        "exito": true,
+        "hash_anterior": "71d8119ae3cd96682ac2a85f723c348c3ab3e924bf6c493c1fb73ebff3c1ca61",
+        "hash": "93aadc1d2429969c388d1ba48f066590ba8d0b03d53e726c4f65ddcbe773fe5c"
+    },
+    {
+        "id": 7,
+        "usuario_id": 1,
+        "rol": "vendedor",
+        "operacion": "PRUEBA_ACCOUNTING",
+        "recurso": "test",
+        "fecha_hora": "2026-09-15T19:07:18.6253545Z",
+        "exito": true,
+        "hash_anterior": "93aadc1d2429969c388d1ba48f066590ba8d0b03d53e726c4f65ddcbe773fe5c",
+        "hash": "c4862509e15b67996304a16db35d5543aa0e5d131c6cdebc084e44a3a98ba277"
+    },
+    {
+        "id": 8,
+        "usuario_id": 1,
+        "rol": "vendedor",
+        "operacion": "PRUEBA_ACCOUNTING",
+        "recurso": "test",
+        "fecha_hora": "2026-09-15T19:22:35.8162459Z",
+        "exito": true,
+        "hash_anterior": "c4862509e15b67996304a16db35d5543aa0e5d131c6cdebc084e44a3a98ba277",
+        "hash": "ad343a946f81d6955629a4470c44f309f1e7a989ad9b6f6e8c71c2662644423b"
+    },
+    {
+        "id": 9,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-15T19:23:03.7695103Z",
+        "exito": true,
+        "hash_anterior": "ad343a946f81d6955629a4470c44f309f1e7a989ad9b6f6e8c71c2662644423b",
+        "hash": "ee5d22c62e42c3473c472b9818a5b7fa4efd899ed947b878bf1e296107e3583d"
+    }
+]

@@ -20,6 +20,7 @@ type RegistroAccounting struct {
 	Rol          string    `json:"rol"`
 	Operacion    string    `json:"operacion"`
 	Recurso      string    `json:"recurso"`
+	RecursoID    string    `json:"recurso_id,omitempty"`
 	FechaHora    time.Time `json:"fecha_hora"`
 	Exito        bool      `json:"exito"`
 	HashAnterior string    `json:"hash_anterior"`
@@ -67,12 +68,13 @@ func guardarRegistrosAccounting(registros []RegistroAccounting) error {
 
 func calcularHash(registro RegistroAccounting) string {
 	contenido := fmt.Sprintf(
-		"%d|%d|%s|%s|%s|%s|%t|%s",
+		"%d|%d|%s|%s|%s|%s|%s|%t|%s",
 		registro.ID,
 		registro.UsuarioID,
 		registro.Rol,
 		registro.Operacion,
 		registro.Recurso,
+		registro.RecursoID,
 		registro.FechaHora.UTC().Format(time.RFC3339Nano),
 		registro.Exito,
 		registro.HashAnterior,
@@ -112,6 +114,7 @@ func RegistrarAccounting(
 	rol string,
 	operacion string,
 	recurso string,
+	recursoID string,
 	exito bool,
 ) error {
 	accountingMu.Lock()
@@ -137,6 +140,7 @@ func RegistrarAccounting(
 		Rol:          rol,
 		Operacion:    operacion,
 		Recurso:      recurso,
+		RecursoID:    recursoID,
 		FechaHora:    time.Now().UTC(),
 		Exito:        exito,
 		HashAnterior: hashAnterior,
