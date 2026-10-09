@@ -55,6 +55,19 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 	return nuevoUsuario, nil
 }
 
+func generarHash(contrasena string) (string, error) {
+	salt := make([]byte, 16)
+
+	if _, err := rand.Read(salt); err != nil {
+		return "", err
+	}
+
+	hash := pbkdf2SHA256([]byte(contrasena), salt, iteraciones, 32)
+
+	return base64.StdEncoding.EncodeToString(salt) + ":" +
+		base64.StdEncoding.EncodeToString(hash), nil
+}
+
 // BLOQUE: eliminar usuario (administrador)
 func EliminarUsuario(usuarioID int) error {
 	usuarios, err := storage.CargarUsuarios()
@@ -77,9 +90,14 @@ func EliminarUsuario(usuarioID int) error {
 
 	usuarios = append(usuarios[:indice], usuarios[indice+1:]...)
 
-	return storage.GuardarUsuarios(usuarios)
-}
+	if err := storage.GuardarUsuarios(usuarios); err != nil {
+		return err
+	}
 
+	InvalidarSesionesUsuario(usuarioID)
+
+	return nil
+}
 func siguienteID(usuarios []models.Usuario) int {
 	mayorID := 0
 
@@ -92,7 +110,7 @@ func siguienteID(usuarios []models.Usuario) int {
 	return mayorID + 1
 }
 
-func generarHash(contrasena string) (string, error) {
+func GenerarHashParaAdmin(contrasena string) (string, error) {
 	salt := make([]byte, 16)
 
 	if _, err := rand.Read(salt); err != nil {
