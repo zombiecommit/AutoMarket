@@ -32,7 +32,7 @@ func SetupRouter() *gin.Engine {
 		handlers.IniciarSesion,
 	)
 
-	// BLOQUE: rutas de visitante (publicas, sin autenticacion)
+	// BLOQUE: rutas de visitante (públicas, sin autenticacion)
 	router.GET(
 		"/catalogo",
 		middleware.RegistrarAccounting(
