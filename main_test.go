@@ -1,6 +1,8 @@
 package main
 
 import (
+	"AutoMarket/services"
+	_ "AutoMarket/services"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -104,14 +106,74 @@ func hacerPeticion(
 
 func decodificar(t *testing.T, respuesta *httptest.ResponseRecorder) map[string]any {
 	t.Helper()
-
 	var cuerpo map[string]any
-
 	if err := json.Unmarshal(respuesta.Body.Bytes(), &cuerpo); err != nil {
 		t.Fatalf("la respuesta no es JSON válido: %v (cuerpo: %s)", err, respuesta.Body.String())
 	}
-
 	return cuerpo
+}
+
+type registroAccountingTest struct {
+	UsuarioID int    `json:"usuario_id"`
+	Rol       string `json:"rol"`
+	Operacion string `json:"operacion"`
+	Recurso   string `json:"recurso"`
+	RecursoID string `json:"recurso_id"`
+	Exito     bool   `json:"exito"`
+}
+
+func comprobarUltimoAccounting(
+	t *testing.T,
+	operacion string,
+	recurso string,
+	recursoID string,
+	exito bool,
+) {
+	t.Helper()
+
+	datos, err := os.ReadFile(rutaAccountingJSON)
+	if err != nil {
+		t.Fatalf("no se pudo leer Accounting: %v", err)
+	}
+
+	var registros []registroAccountingTest
+	if err := json.Unmarshal(datos, &registros); err != nil {
+		t.Fatalf("no se pudo interpretar Accounting: %v", err)
+	}
+
+	if len(registros) == 0 {
+		t.Fatal("Accounting no contiene registros")
+	}
+
+	ultimo := registros[len(registros)-1]
+
+	if ultimo.Operacion != operacion {
+		t.Errorf(
+			"operación esperada %q, obtenida %q",
+			operacion, ultimo.Operacion,
+		)
+	}
+
+	if ultimo.Recurso != recurso {
+		t.Errorf(
+			"recurso esperado %q, obtenido %q",
+			recurso, ultimo.Recurso,
+		)
+	}
+
+	if ultimo.RecursoID != recursoID {
+		t.Errorf(
+			"RecursoID esperado %q, obtenido %q",
+			recursoID, ultimo.RecursoID,
+		)
+	}
+
+	if ultimo.Exito != exito {
+		t.Errorf(
+			"Exito esperado %t, obtenido %t",
+			exito, ultimo.Exito,
+		)
+	}
 }
 
 // registrarYLoguear crea un usuario nuevo (rol "vendedor" por defecto en el
@@ -153,10 +215,6 @@ func registrarYLoguear(t *testing.T, router *gin.Engine, correo string) (token s
 	return cuerpoLogin["token"].(string), usuarioCreado["id"].(float64)
 }
 
-// promoverAAdministrador simula lo que haría un administrador de base de
-// datos: convierte un usuario ya registrado en "administrador" editando el
-// almacenamiento directamente, y le pide un nuevo login (los tokens creados
-// antes de la promoción quedan con el rol viejo, como es esperable).
 func promoverAAdministrador(t *testing.T, router *gin.Engine, correo string) (token string) {
 	t.Helper()
 
@@ -220,10 +278,6 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 	tokenVendedor, _ := registrarYLoguear(t, router, correoVendedor)
 	tokenOtroVendedor, _ := registrarYLoguear(t, router, correoOtroVendedor)
 
-	// El registro público siempre crea usuarios con rol "vendedor", así que
-	// para probar las operaciones de administrador primero se registra un
-	// usuario normal y luego se "promueve" editando el almacenamiento
-	// directamente (como lo haría un administrador de base de datos).
 	registrarYLoguear(t, router, correoAdmin)
 	tokenAdmin := promoverAAdministrador(t, router, correoAdmin)
 
@@ -233,6 +287,15 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuesta.Code != http.StatusOK {
 			t.Fatalf("se esperaba 200, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
+
+		comprobarUltimoAccounting(
+			t,
+			services.OpConsultarCatalogo,
+			"vehiculo",
+			"",
+			true,
+		)
+
 	})
 
 	t.Run("sin token no se puede publicar un vehículo", func(t *testing.T) {
@@ -243,6 +306,15 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuesta.Code != http.StatusUnauthorized {
 			t.Fatalf("se esperaba 401, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
+
+		comprobarUltimoAccounting(
+			t,
+			services.OpPublicarVehiculo,
+			"vehiculo",
+			"",
+			false,
+		)
+
 	})
 
 	var idVehiculo float64
@@ -312,6 +384,15 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuesta.Code != http.StatusForbidden {
 			t.Fatalf("se esperaba 403, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
+
+		comprobarUltimoAccounting(
+			t,
+			services.OpAutorizarPublicacion,
+			"vehiculo",
+			fmt.Sprintf("%d", int(idVehiculo)),
+			false,
+		)
+
 	})
 
 	t.Run("el administrador autoriza la publicación", func(t *testing.T) {
@@ -321,6 +402,14 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuesta.Code != http.StatusOK {
 			t.Fatalf("se esperaba 200, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
+
+		comprobarUltimoAccounting(
+			t,
+			services.OpAutorizarPublicacion,
+			"vehiculo",
+			fmt.Sprintf("%d", int(idVehiculo)),
+			true,
+		)
 
 		vehiculo := decodificar(t, respuesta)["vehiculo"].(map[string]any)
 		if vehiculo["estado"] != "publicado" {
@@ -489,8 +578,7 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 	})
 
 	t.Run("las rutas anteriores de autenticación siguen funcionando igual", func(t *testing.T) {
-		// Regresión: /usuarios y /login (hechas por tus compañeros) no deben
-		// haberse roto con los cambios de este módulo.
+
 		respuestaLoginMalo := hacerPeticion(router, http.MethodPost, "/login", "", map[string]string{
 			"correo":     correoVendedor,
 			"contrasena": "clave-incorrecta",
@@ -499,5 +587,14 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuestaLoginMalo.Code != http.StatusUnauthorized {
 			t.Fatalf("se esperaba 401 con clave incorrecta, se obtuvo %d", respuestaLoginMalo.Code)
 		}
+
+		comprobarUltimoAccounting(
+			t,
+			services.OpIniciarSesion,
+			"autenticacion",
+			"",
+			false,
+		)
+
 	})
 }
