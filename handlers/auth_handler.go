@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"AutoMarket/services"
 
@@ -23,6 +24,14 @@ func IniciarSesion(c *gin.Context) {
 		return
 	}
 
+	if strings.TrimSpace(request.Correo) == "" ||
+		strings.TrimSpace(request.Contrasena) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "el correo y la contraseña son obligatorios",
+		})
+		return
+	}
+
 	usuario, err := services.AutenticarUsuario(
 		request.Correo,
 		request.Contrasena,
@@ -30,11 +39,10 @@ func IniciarSesion(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
+			"error": "correo o contraseña incorrectos",
 		})
 		return
 	}
-
 	token, err := services.CrearSesion(usuario)
 
 	if err != nil {

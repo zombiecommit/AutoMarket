@@ -33,6 +33,13 @@ func RegistrarUsuario(c *gin.Context) {
 	)
 
 	if err != nil {
+		if err.Error() == "el correo ya está registrado" {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -61,8 +68,15 @@ func EliminarUsuario(c *gin.Context) {
 	}
 
 	if err := services.EliminarUsuario(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+		if err.Error() == "usuario no encontrado" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "no se pudo eliminar el usuario",
 		})
 		return
 	}

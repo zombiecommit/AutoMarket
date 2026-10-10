@@ -28,7 +28,7 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 	}
 
 	for _, usuario := range usuarios {
-		if usuario.Correo == correo {
+		if strings.EqualFold(usuario.Correo, correo) {
 			return models.Usuario{}, errors.New("el correo ya está registrado")
 		}
 	}

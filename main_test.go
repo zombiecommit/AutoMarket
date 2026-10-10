@@ -505,6 +505,24 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		}
 	})
 
+	t.Run("el administrador recibe 404 al eliminar un usuario inexistente", func(t *testing.T) {
+		respuesta := hacerPeticion(
+			router,
+			http.MethodDelete,
+			"/usuarios/9999999",
+			tokenAdmin,
+			nil,
+		)
+
+		if respuesta.Code != http.StatusNotFound {
+			t.Fatalf(
+				"se esperaba 404 para un usuario inexistente, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
 	t.Run("el administrador elimina un usuario", func(t *testing.T) {
 		_, idOtroVendedor := registrarYLoguear(t, router, fmt.Sprintf("borrar.%d@automarket.test", os.Getpid()))
 
@@ -571,6 +589,53 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		if respuesta.Code != http.StatusUnauthorized {
 			t.Fatalf(
 				"se esperaba 401 con un token inválido, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
+	t.Run("registrar un correo existente devuelve 409", func(t *testing.T) {
+		correo := fmt.Sprintf("correo-duplicado.%d@automarket.test", os.Getpid())
+
+		registrarYLoguear(t, router, correo)
+
+		respuesta := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/usuarios",
+			"",
+			map[string]string{
+				"nombre":     "Otro usuario",
+				"correo":     correo,
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuesta.Code != http.StatusConflict {
+			t.Fatalf(
+				"se esperaba 409 para un correo duplicado, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
+	t.Run("login con campos vacíos devuelve 400", func(t *testing.T) {
+		respuesta := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     "",
+				"contrasena": "",
+			},
+		)
+
+		if respuesta.Code != http.StatusBadRequest {
+			t.Fatalf(
+				"se esperaba 400 con campos vacíos, se obtuvo %d: %s",
 				respuesta.Code,
 				respuesta.Body.String(),
 			)
