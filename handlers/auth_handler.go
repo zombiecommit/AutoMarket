@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"AutoMarket/middleware"
 	"AutoMarket/services"
 
 	"github.com/gin-gonic/gin"
@@ -38,19 +39,17 @@ func IniciarSesion(c *gin.Context) {
 	)
 
 	if err != nil {
-		responderError(c, err, "correo o contraseña incorrectos")
+		responderError(c, err, "no se pudo iniciar sesión")
 		return
 	}
 	token, err := services.CrearSesion(usuario)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo generar la sesión")
 		return
 	}
 
-	c.Set("usuario", usuario)
+	c.Set(middleware.ClaveUsuarioContexto, usuario)
 
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "inicio de sesión exitoso",
