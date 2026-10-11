@@ -110,19 +110,6 @@ func siguienteID(usuarios []models.Usuario) int {
 	return mayorID + 1
 }
 
-func GenerarHashParaAdmin(contrasena string) (string, error) {
-	salt := make([]byte, 16)
-
-	if _, err := rand.Read(salt); err != nil {
-		return "", err
-	}
-
-	hash := pbkdf2SHA256([]byte(contrasena), salt, iteraciones, 32)
-
-	return base64.StdEncoding.EncodeToString(salt) + ":" +
-		base64.StdEncoding.EncodeToString(hash), nil
-}
-
 func pbkdf2SHA256(password, salt []byte, iteraciones, longitud int) []byte {
 	var resultado []byte
 	numeroBloque := 1
