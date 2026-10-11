@@ -3,7 +3,7 @@ package services
 import (
 	"crypto/subtle"
 	"encoding/base64"
-	"errors"
+
 	"strings"
 
 	"AutoMarket/models"
@@ -14,7 +14,7 @@ func AutenticarUsuario(correo, contrasena string) (models.Usuario, error) {
 	correo = strings.TrimSpace(correo)
 
 	if correo == "" || contrasena == "" {
-		return models.Usuario{}, errors.New("correo y contraseña son obligatorios")
+		return models.Usuario{}, nuevoErrorValidacion("correo y contraseña son obligatorios")
 	}
 
 	usuarios, err := storage.CargarUsuarios()
@@ -28,11 +28,11 @@ func AutenticarUsuario(correo, contrasena string) (models.Usuario, error) {
 				return usuario, nil
 			}
 
-			return models.Usuario{}, errors.New("correo o contraseña incorrectos")
+			return models.Usuario{}, ErrCredencialesInvalidas
 		}
 	}
 
-	return models.Usuario{}, errors.New("correo o contraseña incorrectos")
+	return models.Usuario{}, ErrCredencialesInvalidas
 }
 
 func verificarHash(contrasena, hashGuardado string) bool {

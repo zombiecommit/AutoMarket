@@ -64,9 +64,8 @@ func PublicarVehiculo(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo registrar la publicación")
+
 		return
 	}
 
@@ -123,9 +122,8 @@ func ReportarVenta(c *gin.Context) {
 	vehiculo, err := services.ReportarVehiculoVendido(usuario.ID, id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo reportar la venta")
+
 		return
 	}
 
@@ -148,9 +146,8 @@ func AutorizarPublicacion(c *gin.Context) {
 	vehiculo, err := services.AutorizarPublicacion(id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo autorizar la publicación")
+
 		return
 	}
 
@@ -171,9 +168,8 @@ func EliminarPublicacion(c *gin.Context) {
 	}
 
 	if err := services.EliminarPublicacion(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo eliminar la publicación")
+
 		return
 	}
 
