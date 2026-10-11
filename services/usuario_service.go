@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"errors"
+
 	"strings"
 
 	"AutoMarket/models"
@@ -19,7 +19,7 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 	correo = strings.TrimSpace(correo)
 
 	if nombre == "" || correo == "" || contrasena == "" {
-		return models.Usuario{}, errors.New("todos los campos son obligatorios")
+		return models.Usuario{}, nuevoErrorValidacion("todos los campos son obligatorios")
 	}
 
 	usuarios, err := storage.CargarUsuarios()
@@ -29,7 +29,7 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 
 	for _, usuario := range usuarios {
 		if strings.EqualFold(usuario.Correo, correo) {
-			return models.Usuario{}, errors.New("el correo ya está registrado")
+			return models.Usuario{}, ErrCorreoDuplicado
 		}
 	}
 
@@ -85,7 +85,7 @@ func EliminarUsuario(usuarioID int) error {
 	}
 
 	if indice == -1 {
-		return errors.New("usuario no encontrado")
+		return ErrUsuarioNoEncontrado
 	}
 
 	usuarios = append(usuarios[:indice], usuarios[indice+1:]...)

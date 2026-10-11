@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -19,7 +18,7 @@ type registroRequest struct {
 func RegistrarUsuario(c *gin.Context) {
 	var request registroRequest
 
-	if err := json.NewDecoder(c.Request.Body).Decode(&request); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "el cuerpo de la solicitud debe ser un JSON válido",
 		})
@@ -33,16 +32,7 @@ func RegistrarUsuario(c *gin.Context) {
 	)
 
 	if err != nil {
-		if err.Error() == "el correo ya está registrado" {
-			c.JSON(http.StatusConflict, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo registrar el usuario")
 		return
 	}
 
@@ -68,16 +58,8 @@ func EliminarUsuario(c *gin.Context) {
 	}
 
 	if err := services.EliminarUsuario(id); err != nil {
-		if err.Error() == "usuario no encontrado" {
-			c.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "no se pudo eliminar el usuario",
-		})
+		responderError(c, err, "no se pudo eliminar el usuario") // <--- nuevo cambio añadido
+		// <--- nuevo cambio añadido: aquí se borraron 8 línea(s) del código anterior
 		return
 	}
 

@@ -437,8 +437,8 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		ruta := fmt.Sprintf("/vehiculos/%d/vender", int(idVehiculo))
 		respuesta := hacerPeticion(router, http.MethodPatch, ruta, tokenOtroVendedor, nil)
 
-		if respuesta.Code != http.StatusBadRequest {
-			t.Fatalf("se esperaba 400, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
+		if respuesta.Code != http.StatusForbidden {
+			t.Fatalf("se esperaba 403, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
 	})
 
@@ -463,6 +463,49 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		for _, v := range vehiculos {
 			if v.(map[string]any)["id"] == idVehiculo {
 				t.Error("un vehículo vendido no debería seguir en el catálogo")
+			}
+		}
+	})
+
+	// BLOQUE: manejo de errores consistente de negocio
+	t.Run("los errores de negocio devuelven el código HTTP correcto", func(t *testing.T) {
+		rutaVender := fmt.Sprintf("/vehiculos/%d/vender", int(idVehiculo))
+		rutaAutorizar := fmt.Sprintf("/vehiculos/%d/autorizar", int(idVehiculo))
+
+		casos := []struct {
+			nombre   string
+			metodo   string
+			ruta     string
+			token    string
+			cuerpo   any
+			esperado int
+		}{
+			{"reportar como vendida una publicación ya vendida (409)", http.MethodPatch, rutaVender, tokenVendedor, nil, http.StatusConflict},
+			{"reportar como vendida una publicación inexistente (404)", http.MethodPatch, "/vehiculos/9999999/vender", tokenVendedor, nil, http.StatusNotFound},
+			{"autorizar una publicación que ya no está pendiente (409)", http.MethodPatch, rutaAutorizar, tokenAdmin, nil, http.StatusConflict},
+			{"autorizar una publicación inexistente (404)", http.MethodPatch, "/vehiculos/9999999/autorizar", tokenAdmin, nil, http.StatusNotFound},
+			{"eliminar una publicación inexistente (404)", http.MethodDelete, "/vehiculos/9999999", tokenAdmin, nil, http.StatusNotFound},
+			{
+				"publicar un vehículo con datos inválidos (400)", http.MethodPost, "/vehiculos", tokenVendedor,
+				map[string]any{"marca": "", "modelo": "3", "anio": 2020, "precio": 1000},
+				http.StatusBadRequest,
+			},
+			{
+				"registrar un usuario con campos vacíos (400)", http.MethodPost, "/usuarios", "",
+				map[string]string{"nombre": "", "correo": "", "contrasena": ""},
+				http.StatusBadRequest,
+			},
+		}
+
+		for _, caso := range casos {
+			respuesta := hacerPeticion(router, caso.metodo, caso.ruta, caso.token, caso.cuerpo)
+
+			if respuesta.Code != caso.esperado {
+				t.Errorf(
+					"%s: se esperaba %d, se obtuvo %d: %s",
+					caso.nombre, caso.esperado, respuesta.Code, respuesta.Body.String(),
+				)
+
 			}
 		}
 	})
