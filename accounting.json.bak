@@ -1,0 +1,68 @@
+[
+    {
+        "id": 1,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "REGISTRAR_USUARIO",
+        "recurso": "usuario",
+        "fecha_hora": "2026-09-16T01:51:08.8093505Z",
+        "exito": true,
+        "hash_anterior": "",
+        "hash": "34c715a189cca8298012a4a71ff690ea7fa6ca8d3979b8799e29f9441b93cdf5"
+    },
+    {
+        "id": 2,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-16T01:53:27.8861274Z",
+        "exito": true,
+        "hash_anterior": "34c715a189cca8298012a4a71ff690ea7fa6ca8d3979b8799e29f9441b93cdf5",
+        "hash": "1a473732732c644eb75191e5a357c17e3ff6cc358fc0e3fb111d34cf9c011986"
+    },
+    {
+        "id": 3,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "REGISTRAR_USUARIO",
+        "recurso": "usuario",
+        "fecha_hora": "2026-09-16T01:54:06.1493665Z",
+        "exito": true,
+        "hash_anterior": "1a473732732c644eb75191e5a357c17e3ff6cc358fc0e3fb111d34cf9c011986",
+        "hash": "c390162c5eccebf660033df8cc31fe4a816df37660401eb292f434d09d05eb37"
+    },
+    {
+        "id": 4,
+        "usuario_id": 0,
+        "rol": "visitante",
+        "operacion": "INICIAR_SESION",
+        "recurso": "autenticacion",
+        "fecha_hora": "2026-09-16T01:54:13.5118868Z",
+        "exito": true,
+        "hash_anterior": "c390162c5eccebf660033df8cc31fe4a816df37660401eb292f434d09d05eb37",
+        "hash": "3432db152a6550e966abd4ecf7fd38fd1af58aa38e7a9bfdb2ef9fdeb9a6ff8f"
+    },
+    {
+        "id": 5,
+        "usuario_id": 3,
+        "rol": "vendedor",
+        "operacion": "PUBLICAR_VEHICULO",
+        "recurso": "vehiculo",
+        "fecha_hora": "2026-09-16T01:56:05.7474914Z",
+        "exito": true,
+        "hash_anterior": "3432db152a6550e966abd4ecf7fd38fd1af58aa38e7a9bfdb2ef9fdeb9a6ff8f",
+        "hash": "bd8cb3550f3a2f04675bd0445faa506107950d769411eebfed6cf7e812a8858e"
+    },
+    {
+        "id": 6,
+        "usuario_id": 2,
+        "rol": "administrador",
+        "operacion": "AUTORIZAR_PUBLICACION",
+        "recurso": "vehiculo",
+        "fecha_hora": "2026-09-16T01:56:46.7264912Z",
+        "exito": true,
+        "hash_anterior": "bd8cb3550f3a2f04675bd0445faa506107950d769411eebfed6cf7e812a8858e",
+        "hash": "3faac6d402d1a7331fa399b0af1ae9cd10e4c902ea3d8298182209abc75ee212"
+    }
+]
