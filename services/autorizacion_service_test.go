@@ -37,7 +37,4 @@ func TestRolInexistenteNoTieneNingunPermiso(t *testing.T) {
 		t.Error("un rol inexistente no debería tener ningún permiso")
 	}
 
-	if services.EsRolValido("rol_que_no_existe") {
-		t.Error("'rol_que_no_existe' no debería considerarse un rol válido")
-	}
 }

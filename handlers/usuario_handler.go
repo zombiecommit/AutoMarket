@@ -58,8 +58,8 @@ func EliminarUsuario(c *gin.Context) {
 	}
 
 	if err := services.EliminarUsuario(id); err != nil {
-		responderError(c, err, "no se pudo eliminar el usuario") // <--- nuevo cambio añadido
-		// <--- nuevo cambio añadido: aquí se borraron 8 línea(s) del código anterior
+		responderError(c, err, "no se pudo eliminar el usuario")
+
 		return
 	}
 

@@ -23,9 +23,7 @@ func ConsultarCatalogo(c *gin.Context) {
 	catalogo, err := services.ObtenerCatalogo()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "no se pudo obtener el catálogo",
-		})
+		responderError(c, err, "no se pudo obtener el catálogo")
 		return
 	}
 
@@ -36,12 +34,8 @@ func ConsultarCatalogo(c *gin.Context) {
 
 // BLOQUE: registrar/publicar vehiculo (vendedor)
 func PublicarVehiculo(c *gin.Context) {
-	usuario, autenticado := middleware.ObtenerUsuarioDeContexto(c)
-
+	usuarioID, autenticado := obtenerUsuarioIDAutenticado(c)
 	if !autenticado {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "se requiere autenticación",
-		})
 		return
 	}
 
@@ -55,7 +49,7 @@ func PublicarVehiculo(c *gin.Context) {
 	}
 
 	vehiculo, err := services.RegistrarVehiculo(
-		usuario.ID,
+		usuarioID,
 		request.Marca,
 		request.Modelo,
 		request.Anio,
@@ -77,21 +71,15 @@ func PublicarVehiculo(c *gin.Context) {
 
 // BLOQUE: ver publicaciones propias (vendedor)
 func VerMisPublicaciones(c *gin.Context) {
-	usuario, autenticado := middleware.ObtenerUsuarioDeContexto(c)
-
+	usuarioID, autenticado := obtenerUsuarioIDAutenticado(c)
 	if !autenticado {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "se requiere autenticación",
-		})
 		return
 	}
 
-	publicaciones, err := services.ObtenerPublicacionesDeVendedor(usuario.ID)
+	publicaciones, err := services.ObtenerPublicacionesDeVendedor(usuarioID)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "no se pudieron obtener las publicaciones",
-		})
+		responderError(c, err, "no se pudieron obtener las publicaciones")
 		return
 	}
 
@@ -102,12 +90,8 @@ func VerMisPublicaciones(c *gin.Context) {
 
 // BLOQUE: reportar vehiculo vendido (vendedor)
 func ReportarVenta(c *gin.Context) {
-	usuario, autenticado := middleware.ObtenerUsuarioDeContexto(c)
-
+	usuarioID, autenticado := obtenerUsuarioIDAutenticado(c)
 	if !autenticado {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "se requiere autenticación",
-		})
 		return
 	}
 
@@ -119,7 +103,7 @@ func ReportarVenta(c *gin.Context) {
 		return
 	}
 
-	vehiculo, err := services.ReportarVehiculoVendido(usuario.ID, id)
+	vehiculo, err := services.ReportarVehiculoVendido(usuarioID, id)
 
 	if err != nil {
 		responderError(c, err, "no se pudo reportar la venta")
@@ -176,4 +160,18 @@ func EliminarPublicacion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "publicación eliminada",
 	})
+}
+
+// BLOQUE: obtener id del usuario autenticado o responder 401
+func obtenerUsuarioIDAutenticado(c *gin.Context) (int, bool) {
+	usuario, autenticado := middleware.ObtenerUsuarioDeContexto(c)
+
+	if !autenticado {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "se requiere autenticación",
+		})
+		return 0, false
+	}
+
+	return usuario.ID, true
 }
