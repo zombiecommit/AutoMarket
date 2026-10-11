@@ -43,7 +43,7 @@ func Autenticar() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("usuario", sesion.Usuario)
+		c.Set(ClaveUsuarioContexto, sesion.Usuario)
 		c.Next()
 	}
 }

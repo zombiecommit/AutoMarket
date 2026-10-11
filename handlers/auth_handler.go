@@ -38,9 +38,7 @@ func IniciarSesion(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "correo o contraseña incorrectos",
-		})
+		responderError(c, err, "correo o contraseña incorrectos")
 		return
 	}
 	token, err := services.CrearSesion(usuario)

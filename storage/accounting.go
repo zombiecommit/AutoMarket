@@ -52,12 +52,6 @@ func cargarRegistrosAccounting() ([]RegistroAccounting, error) {
 	return registros, nil
 }
 
-func GuardarRegistrosAccounting(registros []RegistroAccounting) error {
-	accountingMu.Lock()
-	defer accountingMu.Unlock()
-	return guardarRegistrosAccounting(registros)
-}
-
 func guardarRegistrosAccounting(registros []RegistroAccounting) error {
 	datos, err := json.MarshalIndent(registros, "", "    ")
 	if err != nil {
