@@ -28,7 +28,9 @@ func responderError(c *gin.Context, err error, mensajeInterno string) {
 
 	case errors.Is(err, services.ErrCorreoDuplicado),
 		errors.Is(err, services.ErrPublicacionYaVendida),
-		errors.Is(err, services.ErrPublicacionNoPendiente):
+		errors.Is(err, services.ErrPublicacionNoPendiente),
+		errors.Is(err, services.ErrPublicacionNoPublicada),
+		errors.Is(err, services.ErrUsuarioConPublicaciones):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 
 	default:

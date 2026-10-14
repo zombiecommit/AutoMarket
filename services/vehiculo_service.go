@@ -8,6 +8,13 @@ import (
 )
 
 // BLOQUE: estados posibles de una publicacion
+//
+// Transiciones permitidas (cualquier otra se rechaza con 409):
+//
+//	pendiente_aprobacion --(administrador autoriza)--> publicado
+//	publicado            --(vendedor reporta venta)--> vendido
+//
+// Una publicacion pendiente NO puede venderse: primero debe publicarse.
 const (
 	EstadoPendiente = "pendiente_aprobacion"
 	EstadoPublicado = "publicado"
@@ -141,6 +148,10 @@ func ReportarVehiculoVendido(vendedorID int, vehiculoID int) (models.Vehiculo, e
 				return models.Vehiculo{}, ErrPublicacionYaVendida
 			}
 
+			if vehiculo.Estado != EstadoPublicado {
+				return models.Vehiculo{}, ErrPublicacionNoPublicada
+			}
+
 			vehiculos[i].Estado = EstadoVendido
 
 			if err := storage.GuardarVehiculos(vehiculos); err != nil {
@@ -204,6 +215,23 @@ func EliminarPublicacion(vehiculoID int) error {
 	vehiculos = append(vehiculos[:indice], vehiculos[indice+1:]...)
 
 	return storage.GuardarVehiculos(vehiculos)
+}
+
+// BLOQUE: saber si un usuario tiene publicaciones (en cualquier estado)
+// Lo usa EliminarUsuario para no dejar publicaciones huerfanas.
+func usuarioTienePublicaciones(usuarioID int) (bool, error) {
+	vehiculos, err := storage.CargarVehiculos()
+	if err != nil {
+		return false, err
+	}
+
+	for _, vehiculo := range vehiculos {
+		if vehiculo.VendedorID == usuarioID {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // BLOQUE: siguiente ID disponible

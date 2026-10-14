@@ -69,6 +69,11 @@ func generarHash(contrasena string) (string, error) {
 }
 
 // BLOQUE: eliminar usuario (administrador)
+// Politica: no se elimina a un usuario que aun tiene publicaciones (en
+// cualquier estado). El administrador debe eliminarlas antes, una a una,
+// con DELETE /vehiculos/:id. Asi el catalogo nunca muestra publicaciones
+// huerfanas, no hay estados parciales entre usuarios.json y vehiculos.json,
+// y cada publicacion eliminada queda registrada en Accounting.
 func EliminarUsuario(usuarioID int) error {
 	usuarios, err := storage.CargarUsuarios()
 	if err != nil {
@@ -86,6 +91,15 @@ func EliminarUsuario(usuarioID int) error {
 
 	if indice == -1 {
 		return ErrUsuarioNoEncontrado
+	}
+
+	tienePublicaciones, err := usuarioTienePublicaciones(usuarioID)
+	if err != nil {
+		return err
+	}
+
+	if tienePublicaciones {
+		return ErrUsuarioConPublicaciones
 	}
 
 	usuarios = append(usuarios[:indice], usuarios[indice+1:]...)

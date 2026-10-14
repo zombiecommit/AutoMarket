@@ -12,6 +12,8 @@ var (
 	ErrPublicacionAjena        = errors.New("no puedes reportar la venta de una publicación que no te pertenece")
 	ErrPublicacionYaVendida    = errors.New("la publicación ya está marcada como vendida")
 	ErrPublicacionNoPendiente  = errors.New("solo se pueden autorizar publicaciones pendientes de aprobación")
+	ErrPublicacionNoPublicada  = errors.New("solo se puede reportar como vendida una publicación que esté publicada")
+	ErrUsuarioConPublicaciones = errors.New("no se puede eliminar un usuario que tiene publicaciones; elimina primero sus publicaciones")
 )
 
 // BLOQUE: error de validación de datos de entrada (corresponde a 400)

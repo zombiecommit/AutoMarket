@@ -17,13 +17,11 @@ Content-Type: application/json
   "contrasena": "123456"
 }
 
-### Consultar catálogo (visitante, no requiere token)
+### Consultar catálogo y datos de contacto del vendedor (visitante, no requiere token)
+# Cada vehículo publicado trae un objeto "vendedor" con "nombre" y "correo".
+# Un vehículo solo aparece aquí después de que el administrador lo autorice.
 
 GET http://localhost:8080/catalogo
-
-### Consultar información de contacto (visitante, no requiere token)
-
-GET http://localhost:8080/contacto
 
 ### Publicar vehículo (vendedor, requiere token del login)
 # Reemplaza {{token}} por el valor "token" que devolvió el login
