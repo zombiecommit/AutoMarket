@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -664,6 +665,66 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		}
 	})
 
+	t.Run("login acepta correo sin distinguir mayúsculas", func(t *testing.T) {
+		correo := fmt.Sprintf("Usuario.%d@automarket.test", os.Getpid())
+
+		respuestaRegistro := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/usuarios",
+			"",
+			map[string]string{
+				"nombre":     "Usuario de Prueba",
+				"correo":     correo,
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuestaRegistro.Code != http.StatusCreated {
+			t.Fatalf(
+				"se esperaba 201 al registrar, se obtuvo %d: %s",
+				respuestaRegistro.Code,
+				respuestaRegistro.Body.String(),
+			)
+		}
+
+		respuestaLogin := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     strings.ToLower(correo),
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuestaLogin.Code != http.StatusOK {
+			t.Fatalf(
+				"se esperaba 200 al iniciar sesión con correo en minúsculas, se obtuvo %d: %s",
+				respuestaLogin.Code,
+				respuestaLogin.Body.String(),
+			)
+		}
+
+		cuerposRespuesta := []string{
+			respuestaRegistro.Body.String(),
+			respuestaLogin.Body.String(),
+		}
+
+		for _, cuerpo := range cuerposRespuesta {
+			cuerpoMinusculas := strings.ToLower(cuerpo)
+
+			if strings.Contains(cuerpoMinusculas, "contrasenahash") ||
+				strings.Contains(cuerpoMinusculas, "passwordhash") ||
+				strings.Contains(cuerpoMinusculas, `"contrasena"`) ||
+				strings.Contains(cuerpoMinusculas, `"password"`) {
+				t.Errorf("la respuesta expone información sensible: %s", cuerpo)
+			}
+		}
+
+	})
+
 	t.Run("login con campos vacíos devuelve 400", func(t *testing.T) {
 		respuesta := hacerPeticion(
 			router,
@@ -694,6 +755,36 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 
 		if respuestaLoginMalo.Code != http.StatusUnauthorized {
 			t.Fatalf("se esperaba 401 con clave incorrecta, se obtuvo %d", respuestaLoginMalo.Code)
+		}
+
+		respuestaCorreoInexistente := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     fmt.Sprintf("inexistente.%d@automarket.test", os.Getpid()),
+				"contrasena": "clave-incorrecta",
+			},
+		)
+
+		if respuestaCorreoInexistente.Code != http.StatusUnauthorized {
+			t.Fatalf(
+				"se esperaba 401 para correo inexistente, se obtuvo %d: %s",
+				respuestaCorreoInexistente.Code,
+				respuestaCorreoInexistente.Body.String(),
+			)
+		}
+
+		cuerpoClaveIncorrecta := decodificar(t, respuestaLoginMalo)
+		cuerpoCorreoInexistente := decodificar(t, respuestaCorreoInexistente)
+
+		if cuerpoClaveIncorrecta["error"] != cuerpoCorreoInexistente["error"] {
+			t.Errorf(
+				"los mensajes de error deben ser iguales: contraseña incorrecta=%v, correo inexistente=%v",
+				cuerpoClaveIncorrecta["error"],
+				cuerpoCorreoInexistente["error"],
+			)
 		}
 
 		comprobarUltimoAccounting(

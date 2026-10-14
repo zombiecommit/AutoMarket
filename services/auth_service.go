@@ -11,7 +11,7 @@ import (
 )
 
 func AutenticarUsuario(correo, contrasena string) (models.Usuario, error) {
-	correo = strings.TrimSpace(correo)
+	correo = strings.ToLower(strings.TrimSpace(correo))
 
 	if correo == "" || contrasena == "" {
 		return models.Usuario{}, nuevoErrorValidacion("correo y contraseña son obligatorios")

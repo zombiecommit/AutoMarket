@@ -16,7 +16,7 @@ const iteraciones = 100000
 
 func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error) {
 	nombre = strings.TrimSpace(nombre)
-	correo = strings.TrimSpace(correo)
+	correo = strings.ToLower(strings.TrimSpace(correo))
 
 	if nombre == "" || correo == "" || contrasena == "" {
 		return models.Usuario{}, nuevoErrorValidacion("todos los campos son obligatorios")
