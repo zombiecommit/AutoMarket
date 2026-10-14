@@ -15,7 +15,7 @@ func RequerirPermiso(operacion string) gin.HandlerFunc {
 
 		if !autenticado {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "se requiere autenticación para realizar esta operación",
+				"error": "se requiere autenticación",
 			})
 			return
 		}
@@ -30,4 +30,3 @@ func RequerirPermiso(operacion string) gin.HandlerFunc {
 		c.Next()
 	}
 }
-
