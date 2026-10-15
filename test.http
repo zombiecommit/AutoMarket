@@ -30,7 +30,7 @@ GET http://localhost:8080/contacto
 
 POST http://localhost:8080/vehiculos
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer e9ee36e1141af8fb6ff0935fc614c727f99d947522f9142c601b13484e464f7c
 
 {
   "marca": "Mazda",

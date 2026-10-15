@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"fmt"
+
 	"AutoMarket/services"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,12 @@ func RegistrarAccounting(operacion, recurso string) gin.HandlerFunc {
 		usuario, autenticado := ObtenerUsuarioDeContexto(c)
 
 		recursoID := c.Param("id")
+
+		if recursoID == "" {
+			if id, existe := c.Get("accounting_recurso_id"); existe {
+				recursoID, _ = id.(string)
+			}
+		}
 
 		exito := c.Writer.Status() >= 200 && c.Writer.Status() < 400
 
@@ -37,7 +45,7 @@ func RegistrarAccounting(operacion, recurso string) gin.HandlerFunc {
 		}
 
 		if err != nil {
-			_ = c.Error(err)
+			c.Error(fmt.Errorf("falló el registro de Accounting: %w", err))
 		}
 	}
 }

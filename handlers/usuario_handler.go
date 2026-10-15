@@ -39,6 +39,8 @@ func RegistrarUsuario(c *gin.Context) {
 		return
 	}
 
+	c.Set("accounting_recurso_id", strconv.Itoa(usuario.ID))
+
 	c.JSON(http.StatusCreated, gin.H{
 		"mensaje": "usuario registrado correctamente",
 		"usuario": gin.H{
