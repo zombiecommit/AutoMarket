@@ -52,6 +52,10 @@ func verificarHash(contrasena, hashGuardado string) bool {
 		return false
 	}
 
+	if len(salt) == 0 || len(hashEsperado) != 32 {
+		return false
+	}
+
 	hashCalculado := pbkdf2SHA256(
 		[]byte(contrasena),
 		salt,
