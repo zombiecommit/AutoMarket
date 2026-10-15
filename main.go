@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// BLOQUE: construir el router con todas las rutas de la aplicacion
-// (se separa de main() para poder probarlo con httptest en los tests)
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 

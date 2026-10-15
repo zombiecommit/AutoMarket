@@ -5,5 +5,12 @@
         "correo": "juan@test.com",
         "contrasena_hash": "wudEVaGdfNdgp9KPMRBz4w==:I5TVgV+AM8+ourPceb5Sybmb5qrAPJbJU4Nx1pa5qag=",
         "rol": "vendedor"
+    },
+    {
+        "id": 2,
+        "nombre": "Prueba Accounting",
+        "correo": "prueba.accounting@example.com",
+        "contrasena_hash": "7vF+SZ9clV2d0wViW48BlA==:Dc9Wpm2lufG57PjebuUpzJGcAYuYzPkfWtiHlYcXGqA=",
+        "rol": "vendedor"
     }
 ]

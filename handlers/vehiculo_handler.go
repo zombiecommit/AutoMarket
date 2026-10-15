@@ -63,6 +63,8 @@ func PublicarVehiculo(c *gin.Context) {
 		return
 	}
 
+	c.Set("accounting_recurso_id", strconv.Itoa(vehiculo.ID))
+
 	c.JSON(http.StatusCreated, gin.H{
 		"mensaje":  "publicación registrada, queda pendiente de aprobación",
 		"vehiculo": vehiculo,
