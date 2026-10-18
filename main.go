@@ -13,6 +13,8 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*.html")
+	router.Static("/static", "./static")
+
 	router.GET("/login", func(c *gin.Context) {
 		c.HTML(200, "login.html", gin.H{})
 	})
@@ -42,12 +44,18 @@ func SetupRouter() *gin.Engine {
 	// BLOQUE: rutas de visitante (públicas, sin autenticacion)
 	router.GET(
 		"/catalogo",
+		handlers.CatalogoComoPaginaSiEsNavegador(),
 		middleware.RegistrarAccounting(
 			services.OpConsultarCatalogo,
 			"vehiculo",
 		),
 		handlers.ConsultarCatalogo,
 	)
+
+	// BLOQUE: paginas HTML de vehiculos (los datos llegan por la API REST)
+	router.GET("/catalogo/:id", handlers.PaginaDetalleVehiculo)
+	router.GET("/mis-vehiculos", handlers.PaginaMisVehiculos)
+	router.GET("/publicar", handlers.PaginaPublicar)
 
 	// BLOQUE: rutas de vendedor (requieren autenticacion + permiso)
 	router.POST(

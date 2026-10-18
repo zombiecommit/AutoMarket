@@ -212,9 +212,17 @@ func EliminarPublicacion(vehiculoID int) error {
 		return ErrPublicacionNoEncontrada
 	}
 
+	foto := vehiculos[indice].Foto
+
 	vehiculos = append(vehiculos[:indice], vehiculos[indice+1:]...)
 
-	return storage.GuardarVehiculos(vehiculos)
+	if err := storage.GuardarVehiculos(vehiculos); err != nil {
+		return err
+	}
+
+	borrarArchivoFoto(foto)
+
+	return nil
 }
 
 // BLOQUE: saber si un usuario tiene publicaciones (en cualquier estado)
