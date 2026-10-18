@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | AutoMarket</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #172033;
+        }
+
+        .card {
+            width: min(420px, 92%);
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px #17203318;
+        }
+
+        h1 { margin-top: 0; text-align: center; }
+        .subtitle { text-align: center; color: #64748b; }
+
+        label {
+            display: block;
+            margin: 18px 0 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 13px;
+            border: 0;
+            border-radius: 8px;
+            background: #1769aa;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #12558a; }
+        .message { margin-top: 16px; text-align: center; }
+        a { color: #1769aa; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Crear cuenta</h1>
+        <p class="subtitle">Únete a AutoMarket</p>
+
+        <form id="registroForm">
+            <label for="nombre">Nombre completo</label>
+            <input id="nombre" name="nombre" type="text"
+                   autocomplete="name" required>
+
+            <label for="correo">Correo electrónico</label>
+            <input id="correo" name="correo" type="email"
+                   autocomplete="email" required>
+
+            <label for="contrasena">Contraseña</label>
+            <input id="contrasena" name="contrasena" type="password"
+                   autocomplete="new-password" required>
+
+            <button type="submit">Registrarme</button>
+            <p id="mensaje" class="message" role="status"></p>
+        </form>
+
+        <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+    </main>
+
+    <script>
+        const formulario = document.getElementById("registroForm");
+        const mensaje = document.getElementById("mensaje");
+
+        formulario.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            mensaje.textContent = "Registrando usuario...";
+
+            try {
+                const respuesta = await fetch("/usuarios", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        nombre: document.getElementById("nombre").value,
+                        correo: document.getElementById("correo").value,
+                        contrasena: document.getElementById("contrasena").value
+                    })
+                });
+
+                const datos = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    mensaje.textContent =
+                        datos.mensaje || datos.error || "No fue posible registrarse.";
+                    return;
+                }
+
+                mensaje.textContent = "Registro exitoso. Ya puedes iniciar sesión.";
+                formulario.reset();
+            } catch {
+                mensaje.textContent =
+                    "No se pudo conectar con AutoMarket. Intenta de nuevo.";
+            }
+        });
+    </script>
+</body>
+</html>
