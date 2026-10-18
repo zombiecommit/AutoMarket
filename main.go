@@ -12,6 +12,15 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*.html")
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(200, "login.html", gin.H{})
+	})
+
+	router.GET("/registro", func(c *gin.Context) {
+		c.HTML(200, "registro.html", gin.H{})
+	})
+
 	router.POST(
 		"/usuarios",
 		middleware.RegistrarAccounting(
