@@ -12,6 +12,15 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/static", "./static")
+
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(200, "index.html", gin.H{
+			"titulo": "AutoMarket",
+		})
+	})
+
 	router.POST(
 		"/usuarios",
 		middleware.RegistrarAccounting(
@@ -38,6 +47,11 @@ func SetupRouter() *gin.Engine {
 			"vehiculo",
 		),
 		handlers.ConsultarCatalogo,
+	)
+
+	router.GET(
+		"/app/catalogo",
+		handlers.MostrarCatalogo,
 	)
 
 	// BLOQUE: rutas de vendedor (requieren autenticacion + permiso)

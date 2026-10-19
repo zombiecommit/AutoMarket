@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo - AutoMarket</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>AutoMarket</h1>
+
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/app/catalogo">Catálogo</a>
+        <a href="/login">Iniciar sesión</a>
+        <a href="/registro">Registrarse</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="catalogo-header">
+        <h2>Vehículos disponibles</h2>
+
+        <p>
+            Explora los vehículos publicados en AutoMarket.
+        </p>
+    </section>
+
+    {{if .error}}
+
+    <div class="mensaje-error">
+        {{.error}}
+    </div>
+
+    {{else}}
+
+    <section class="vehiculos">
+
+        {{if .vehiculos}}
+
+        {{range .vehiculos}}
+
+        <article class="vehiculo-card">
+
+            <div class="vehiculo-imagen">
+                <img src="/static/images/mazda3.jpg" alt="{{.Marca}} {{.Modelo}}">
+            </div>
+
+            <div class="vehiculo-info">
+
+                <h3>
+                    {{.Marca}} {{.Modelo}}
+                </h3>
+
+                <p>
+                    <strong>Año:</strong>
+                    {{.Anio}}
+                </p>
+
+                <p class="precio">
+                    ${{printf "%.0f" .Precio}}
+                </p>
+
+                <p>
+                    {{.Descripcion}}
+                </p>
+
+                <p>
+                    <strong>Vendedor:</strong>
+                    {{.Vendedor.Nombre}}
+                </p>
+
+                <p>
+                    <strong>Contacto:</strong>
+                    {{.Vendedor.Correo}}
+                </p>
+
+                <span class="estado">
+                                {{.Estado}}
+                            </span>
+
+            </div>
+
+        </article>
+
+        {{end}}
+
+        {{else}}
+
+        <div class="sin-vehiculos">
+            <h3>No hay vehículos disponibles</h3>
+
+            <p>
+                Actualmente, no existen publicaciones
+                aprobadas en el catálogo.
+            </p>
+        </div>
+
+        {{end}}
+
+    </section>
+
+    {{end}}
+
+</main>
+
+<footer>
+    <p>AutoMarket © 2026</p>
+</footer>
+
+</body>
+</html>

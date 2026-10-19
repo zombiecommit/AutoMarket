@@ -12,5 +12,12 @@
         "correo": "prueba.accounting@example.com",
         "contrasena_hash": "7vF+SZ9clV2d0wViW48BlA==:Dc9Wpm2lufG57PjebuUpzJGcAYuYzPkfWtiHlYcXGqA=",
         "rol": "vendedor"
+    },
+    {
+        "id": 3,
+        "nombre": "Administrador",
+        "correo": "admin@test.com",
+        "contrasena_hash": "H2MTurxcCxSKoEum05gw6A==:ujUEqe3Tq+Xg0hwwXF00pOc8Q7IQv2qxCwfltcjVE8E=",
+        "rol": "administrador"
     }
 ]
