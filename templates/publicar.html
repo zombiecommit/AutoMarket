@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicar vehículo | AutoMarket</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {{template "nav" .}}
+    <main class="contenido">
+        <h1>Publicar vehículo</h1>
+        <p class="subtitulo">Tu publicación quedará pendiente hasta que el administrador la apruebe.</p>
+
+        <form id="formulario" class="formulario">
+            <label for="marca">Marca</label>
+            <input id="marca" name="marca" type="text" required>
+
+            <label for="modelo">Modelo</label>
+            <input id="modelo" name="modelo" type="text" required>
+
+            <label for="anio">Año</label>
+            <input id="anio" name="anio" type="number" min="1" step="1" required>
+
+            <label for="precio">Precio (COP)</label>
+            <input id="precio" name="precio" type="number" min="1" step="any" required>
+
+            <label for="foto">Foto del vehículo</label>
+            <input id="foto" name="foto" type="file" accept="image/jpeg,image/png,image/webp" required>
+            <img id="vistaPrevia" class="vista-previa" alt="Vista previa de la foto" hidden>
+
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion"></textarea>
+
+            <button class="boton" type="submit">Publicar</button>
+            <p id="mensaje" class="mensaje" role="status"></p>
+        </form>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        if (!AutoMarket.token()) window.location.href = "/login";
+
+        const formulario = document.getElementById("formulario");
+        const mensaje = document.getElementById("mensaje");
+        const vistaPrevia = document.getElementById("vistaPrevia");
+        const campoFoto = document.getElementById("foto");
+
+        const MAX_FOTO = 5 * 1024 * 1024;
+
+        campoFoto.addEventListener("change", () => {
+            const archivo = campoFoto.files[0];
+            mensaje.className = "mensaje";
+            mensaje.textContent = "";
+
+            if (!archivo) { vistaPrevia.hidden = true; return; }
+
+            if (archivo.size > MAX_FOTO) {
+                campoFoto.value = "";
+                vistaPrevia.hidden = true;
+                mensaje.classList.add("error");
+                mensaje.textContent = "La foto no puede superar los 5 MB.";
+                return;
+            }
+
+            vistaPrevia.src = URL.createObjectURL(archivo);
+            vistaPrevia.hidden = false;
+        });
+
+        formulario.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            mensaje.className = "mensaje";
+            mensaje.textContent = "Enviando publicación...";
+
+            try {
+                const { ok, datos } = await AutoMarket.api("/vehiculos", {
+                    method: "POST",
+                    requiereSesion: true,
+                    body: new FormData(formulario),
+                });
+
+                if (!ok) {
+                    mensaje.classList.add("error");
+                    mensaje.textContent = datos.error || "No se pudo registrar la publicación.";
+                    return;
+                }
+
+                mensaje.classList.add("ok");
+                mensaje.textContent = datos.mensaje;
+                formulario.reset();
+                vistaPrevia.hidden = true;
+            } catch {
+                mensaje.classList.add("error");
+                mensaje.textContent = "No se pudo conectar con AutoMarket. Intenta de nuevo.";
+            }
+        });
+    </script>
+</body>
+</html>

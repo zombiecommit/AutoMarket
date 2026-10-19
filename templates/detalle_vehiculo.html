@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del vehículo | AutoMarket</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {{template "nav" .}}
+    <main class="contenido">
+        <p><a href="/catalogo">&larr; Volver al catálogo</a></p>
+        <p id="mensaje" class="mensaje" role="status">Cargando vehículo...</p>
+        <section id="detalle"></section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        (async () => {
+            const mensaje = document.getElementById("mensaje");
+            const contenedor = document.getElementById("detalle");
+            const id = Number(location.pathname.split("/").filter(Boolean).pop());
+
+            try {
+                const { ok, datos } = await AutoMarket.api("/catalogo");
+                const vehiculo = ok && (datos.vehiculos || []).find((v) => v.id === id);
+
+                if (!vehiculo) {
+                    mensaje.textContent = "Este vehículo no existe o ya no está disponible.";
+                    mensaje.classList.add("error");
+                    return;
+                }
+                mensaje.remove();
+
+                const v = vehiculo;
+                const caja = AutoMarket.el("div", "detalle");
+                caja.appendChild(AutoMarket.foto(v));
+
+                const info = AutoMarket.el("div", "info");
+                info.appendChild(AutoMarket.el("h1", "", `${v.marca} ${v.modelo}`));
+                info.appendChild(AutoMarket.el("span", "dato", `Año: ${v.anio}`));
+                info.appendChild(AutoMarket.el("span", "precio", AutoMarket.precio(v.precio)));
+                info.appendChild(AutoMarket.el("p", "descripcion", v.descripcion || "El vendedor no agregó una descripción."));
+                info.appendChild(AutoMarket.el("span", "dato", `Vendedor: ${v.vendedor.nombre || "No disponible"}`));
+
+                if (v.vendedor.correo) {
+                    const contacto = AutoMarket.el("a", "boton", "Contactar al vendedor");
+                    contacto.href = "mailto:" + v.vendedor.correo;
+                    info.appendChild(contacto);
+                }
+
+                caja.appendChild(info);
+                contenedor.appendChild(caja);
+            } catch {
+                mensaje.textContent = "No se pudo conectar con AutoMarket. Intenta de nuevo.";
+                mensaje.classList.add("error");
+            }
+        })();
+    </script>
+</body>
+</html>

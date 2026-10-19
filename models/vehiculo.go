@@ -9,6 +9,7 @@ type Vehiculo struct {
 	Precio      float64 `json:"precio"`
 	Descripcion string  `json:"descripcion"`
 	Estado      string  `json:"estado"`
+	Foto        string  `json:"foto,omitempty"`
 }
 
 // ContactoVendedor: datos de contacto del vendedor asociado a una publicacion.
