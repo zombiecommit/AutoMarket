@@ -17,9 +17,15 @@ Content-Type: application/json
   "contrasena": "123456"
 }
 
+<<<<<<< HEAD
+
+
+### Consultar catálogo (visitante, no requiere token)
+=======
 ### Consultar catálogo y datos de contacto del vendedor (visitante, no requiere token)
 # Cada vehículo publicado trae un objeto "vendedor" con "nombre" y "correo".
 # Un vehículo solo aparece aquí después de que el administrador lo autorice.
+>>>>>>> origin/main
 
 GET http://localhost:8080/catalogo
 
@@ -63,3 +69,18 @@ Authorization: Bearer {{token_admin}}
 
 DELETE http://localhost:8080/usuarios/{{id}}
 Authorization: Bearer {{token_admin}}
+
+### Login administrador
+
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "correo": "admin@test.com",
+  "contrasena": "Admin123!"
+}
+
+### Autorizar publicación (administrador)
+
+PATCH http://localhost:8080/vehiculos/1/autorizar
+Authorization: Bearer 011f18e0f3c285ec77ad0ff7cddebf64f7ac007cf345c3bb9f0c5a59e1874d4b
