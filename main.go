@@ -1,10 +1,9 @@
 package main
 
 import (
+	"AutoMarket/handlers"
 	"AutoMarket/middleware"
 	"AutoMarket/services"
-
-	"AutoMarket/handlers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,13 +11,23 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("templates/*.html")
 	router.Static("/static", "./static")
 
+	// Página principal
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(200, "index.html", gin.H{
 			"titulo": "AutoMarket",
 		})
+	})
+
+	// Páginas de autenticación
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(200, "login.html", gin.H{})
+	})
+
+	router.GET("/registro", func(c *gin.Context) {
+		c.HTML(200, "registro.html", gin.H{})
 	})
 
 	router.POST(
@@ -42,6 +51,7 @@ func SetupRouter() *gin.Engine {
 	// BLOQUE: rutas de visitante (públicas, sin autenticacion)
 	router.GET(
 		"/catalogo",
+		handlers.CatalogoComoPaginaSiEsNavegador(),
 		middleware.RegistrarAccounting(
 			services.OpConsultarCatalogo,
 			"vehiculo",
@@ -49,12 +59,28 @@ func SetupRouter() *gin.Engine {
 		handlers.ConsultarCatalogo,
 	)
 
+	// BLOQUE: páginas HTML de vehículos
 	router.GET(
 		"/app/catalogo",
 		handlers.MostrarCatalogo,
 	)
 
-	// BLOQUE: rutas de vendedor (requieren autenticacion + permiso)
+	router.GET(
+		"/catalogo/:id",
+		handlers.PaginaDetalleVehiculo,
+	)
+
+	router.GET(
+		"/mis-vehiculos",
+		handlers.PaginaMisVehiculos,
+	)
+
+	router.GET(
+		"/publicar",
+		handlers.PaginaPublicar,
+	)
+
+	// BLOQUE: rutas de vendedor
 	router.POST(
 		"/vehiculos",
 		middleware.RegistrarAccounting(
@@ -88,7 +114,7 @@ func SetupRouter() *gin.Engine {
 		handlers.ReportarVenta,
 	)
 
-	// BLOQUE: rutas de administrador (requieren autenticacion + permiso)
+	// BLOQUE: rutas de administrador
 	router.PATCH(
 		"/vehiculos/:id/autorizar",
 		middleware.RegistrarAccounting(

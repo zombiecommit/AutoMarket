@@ -37,7 +37,50 @@ func TestRolInexistenteNoTieneNingunPermiso(t *testing.T) {
 		t.Error("un rol inexistente no debería tener ningún permiso")
 	}
 
-	if services.EsRolValido("rol_que_no_existe") {
-		t.Error("'rol_que_no_existe' no debería considerarse un rol válido")
+}
+
+// BLOQUE: matriz completa de permisos (3 roles x 7 operaciones)
+
+func TestMatrizDePermisosPorRol(t *testing.T) {
+	operaciones := []string{
+		services.OpConsultarCatalogo,
+		services.OpPublicarVehiculo,
+		services.OpVerPublicacionesPropias,
+		services.OpReportarVenta,
+		services.OpAutorizarPublicacion,
+		services.OpEliminarPublicacion,
+		services.OpEliminarUsuario,
+	}
+
+	// true = el rol SI puede ejecutar la operacion; lo que no aparece = denegado
+	esperado := map[string]map[string]bool{
+		services.RolVisitante: {
+			services.OpConsultarCatalogo: true,
+		},
+		services.RolVendedor: {
+			services.OpPublicarVehiculo:        true,
+			services.OpVerPublicacionesPropias: true,
+			services.OpReportarVenta:           true,
+		},
+		services.RolAdministrador: {
+			services.OpAutorizarPublicacion: true,
+			services.OpEliminarPublicacion:  true,
+			services.OpEliminarUsuario:      true,
+		},
+	}
+
+	for rol, permitidas := range esperado {
+		for _, operacion := range operaciones {
+			t.Run(rol+" / "+operacion, func(t *testing.T) {
+				obtenido := services.TienePermiso(rol, operacion)
+
+				if obtenido != permitidas[operacion] {
+					t.Errorf(
+						"rol %q, operación %q: se esperaba %v y se obtuvo %v",
+						rol, operacion, permitidas[operacion], obtenido,
+					)
+				}
+			})
+		}
 	}
 }

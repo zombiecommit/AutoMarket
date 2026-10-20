@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 
     <title>Catálogo - AutoMarket</title>
 
@@ -116,3 +117,67 @@
 
 </body>
 </html>
+=======
+    <title>Catálogo | AutoMarket</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {{template "nav" .}}
+    <main class="contenido">
+        <h1>Catálogo de vehículos</h1>
+        <p class="subtitulo">Vehículos publicados y aprobados por el administrador.</p>
+
+        <p id="mensaje" class="mensaje" role="status">Cargando vehículos...</p>
+        <section id="lista" class="rejilla"></section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        (async () => {
+            const mensaje = document.getElementById("mensaje");
+            const lista = document.getElementById("lista");
+
+            try {
+                const { ok, datos } = await AutoMarket.api("/catalogo");
+
+                if (!ok) {
+                    mensaje.textContent = datos.error || "No se pudo cargar el catálogo.";
+                    mensaje.classList.add("error");
+                    return;
+                }
+
+                const vehiculos = datos.vehiculos || [];
+                if (vehiculos.length === 0) {
+                    mensaje.textContent = "Todavía no hay vehículos publicados.";
+                    return;
+                }
+                mensaje.remove();
+
+                for (const v of vehiculos) {
+                    const tarjeta = AutoMarket.el("article", "tarjeta");
+                    tarjeta.appendChild(AutoMarket.foto(v));
+
+                    const cuerpo = AutoMarket.el("div", "cuerpo");
+                    cuerpo.appendChild(AutoMarket.el("h2", "", `${v.marca} ${v.modelo}`));
+                    cuerpo.appendChild(AutoMarket.el("span", "dato", `Año: ${v.anio}`));
+                    cuerpo.appendChild(AutoMarket.el("span", "precio", AutoMarket.precio(v.precio)));
+                    cuerpo.appendChild(AutoMarket.el("span", "dato", `Vendedor: ${v.vendedor.nombre || "No disponible"}`));
+
+                    const acciones = AutoMarket.el("div", "acciones");
+                    const enlace = AutoMarket.el("a", "boton", "Ver detalles");
+                    enlace.href = `/catalogo/${v.id}`;
+                    acciones.appendChild(enlace);
+                    cuerpo.appendChild(acciones);
+
+                    tarjeta.appendChild(cuerpo);
+                    lista.appendChild(tarjeta);
+                }
+            } catch {
+                mensaje.textContent = "No se pudo conectar con AutoMarket. Intenta de nuevo.";
+                mensaje.classList.add("error");
+            }
+        })();
+    </script>
+</body>
+</html>
+>>>>>>> origin/main

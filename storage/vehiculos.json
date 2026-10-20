@@ -6,7 +6,28 @@
         "modelo": "3",
         "anio": 2020,
         "precio": 60000000,
-        "descripcion": "Full equipo, único dueño",
+        "descripcion": "Full equipo, Ãºnico dueÃ±o",
         "estado": "publicado"
+    },
+    {
+        "id": 2,
+        "vendedor_id": 4,
+        "marca": "mazda",
+        "modelo": "t4",
+        "anio": 2024,
+        "precio": 5000000,
+        "descripcion": "carro",
+        "estado": "pendiente_aprobacion"
+    },
+    {
+        "id": 3,
+        "vendedor_id": 4,
+        "marca": "Lamborghini",
+        "modelo": "murcuelago",
+        "anio": 2000,
+        "precio": 800000000,
+        "descripcion": "carro de lujo",
+        "estado": "pendiente_aprobacion",
+        "foto": "/static/images/vehiculos/3.webp"
     }
 ]

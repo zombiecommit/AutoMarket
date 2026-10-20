@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -437,8 +438,8 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		ruta := fmt.Sprintf("/vehiculos/%d/vender", int(idVehiculo))
 		respuesta := hacerPeticion(router, http.MethodPatch, ruta, tokenOtroVendedor, nil)
 
-		if respuesta.Code != http.StatusBadRequest {
-			t.Fatalf("se esperaba 400, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
+		if respuesta.Code != http.StatusForbidden {
+			t.Fatalf("se esperaba 403, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
 		}
 	})
 
@@ -463,6 +464,49 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		for _, v := range vehiculos {
 			if v.(map[string]any)["id"] == idVehiculo {
 				t.Error("un vehículo vendido no debería seguir en el catálogo")
+			}
+		}
+	})
+
+	// BLOQUE: manejo de errores consistente de negocio
+	t.Run("los errores de negocio devuelven el código HTTP correcto", func(t *testing.T) {
+		rutaVender := fmt.Sprintf("/vehiculos/%d/vender", int(idVehiculo))
+		rutaAutorizar := fmt.Sprintf("/vehiculos/%d/autorizar", int(idVehiculo))
+
+		casos := []struct {
+			nombre   string
+			metodo   string
+			ruta     string
+			token    string
+			cuerpo   any
+			esperado int
+		}{
+			{"reportar como vendida una publicación ya vendida (409)", http.MethodPatch, rutaVender, tokenVendedor, nil, http.StatusConflict},
+			{"reportar como vendida una publicación inexistente (404)", http.MethodPatch, "/vehiculos/9999999/vender", tokenVendedor, nil, http.StatusNotFound},
+			{"autorizar una publicación que ya no está pendiente (409)", http.MethodPatch, rutaAutorizar, tokenAdmin, nil, http.StatusConflict},
+			{"autorizar una publicación inexistente (404)", http.MethodPatch, "/vehiculos/9999999/autorizar", tokenAdmin, nil, http.StatusNotFound},
+			{"eliminar una publicación inexistente (404)", http.MethodDelete, "/vehiculos/9999999", tokenAdmin, nil, http.StatusNotFound},
+			{
+				"publicar un vehículo con datos inválidos (400)", http.MethodPost, "/vehiculos", tokenVendedor,
+				map[string]any{"marca": "", "modelo": "3", "anio": 2020, "precio": 1000},
+				http.StatusBadRequest,
+			},
+			{
+				"registrar un usuario con campos vacíos (400)", http.MethodPost, "/usuarios", "",
+				map[string]string{"nombre": "", "correo": "", "contrasena": ""},
+				http.StatusBadRequest,
+			},
+		}
+
+		for _, caso := range casos {
+			respuesta := hacerPeticion(router, caso.metodo, caso.ruta, caso.token, caso.cuerpo)
+
+			if respuesta.Code != caso.esperado {
+				t.Errorf(
+					"%s: se esperaba %d, se obtuvo %d: %s",
+					caso.nombre, caso.esperado, respuesta.Code, respuesta.Body.String(),
+				)
+
 			}
 		}
 	})
@@ -502,6 +546,24 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 
 		if respuesta.Code != http.StatusForbidden {
 			t.Fatalf("se esperaba 403, se obtuvo %d: %s", respuesta.Code, respuesta.Body.String())
+		}
+	})
+
+	t.Run("el administrador recibe 404 al eliminar un usuario inexistente", func(t *testing.T) {
+		respuesta := hacerPeticion(
+			router,
+			http.MethodDelete,
+			"/usuarios/9999999",
+			tokenAdmin,
+			nil,
+		)
+
+		if respuesta.Code != http.StatusNotFound {
+			t.Fatalf(
+				"se esperaba 404 para un usuario inexistente, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
 		}
 	})
 
@@ -577,6 +639,113 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 		}
 	})
 
+	t.Run("registrar un correo existente devuelve 409", func(t *testing.T) {
+		correo := fmt.Sprintf("correo-duplicado.%d@automarket.test", os.Getpid())
+
+		registrarYLoguear(t, router, correo)
+
+		respuesta := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/usuarios",
+			"",
+			map[string]string{
+				"nombre":     "Otro usuario",
+				"correo":     correo,
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuesta.Code != http.StatusConflict {
+			t.Fatalf(
+				"se esperaba 409 para un correo duplicado, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
+	t.Run("login acepta correo sin distinguir mayúsculas", func(t *testing.T) {
+		correo := fmt.Sprintf("Usuario.%d@automarket.test", os.Getpid())
+
+		respuestaRegistro := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/usuarios",
+			"",
+			map[string]string{
+				"nombre":     "Usuario de Prueba",
+				"correo":     correo,
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuestaRegistro.Code != http.StatusCreated {
+			t.Fatalf(
+				"se esperaba 201 al registrar, se obtuvo %d: %s",
+				respuestaRegistro.Code,
+				respuestaRegistro.Body.String(),
+			)
+		}
+
+		respuestaLogin := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     strings.ToLower(correo),
+				"contrasena": "ClavePrueba123!",
+			},
+		)
+
+		if respuestaLogin.Code != http.StatusOK {
+			t.Fatalf(
+				"se esperaba 200 al iniciar sesión con correo en minúsculas, se obtuvo %d: %s",
+				respuestaLogin.Code,
+				respuestaLogin.Body.String(),
+			)
+		}
+
+		cuerposRespuesta := []string{
+			respuestaRegistro.Body.String(),
+			respuestaLogin.Body.String(),
+		}
+
+		for _, cuerpo := range cuerposRespuesta {
+			cuerpoMinusculas := strings.ToLower(cuerpo)
+
+			if strings.Contains(cuerpoMinusculas, "contrasenahash") ||
+				strings.Contains(cuerpoMinusculas, "passwordhash") ||
+				strings.Contains(cuerpoMinusculas, `"contrasena"`) ||
+				strings.Contains(cuerpoMinusculas, `"password"`) {
+				t.Errorf("la respuesta expone información sensible: %s", cuerpo)
+			}
+		}
+
+	})
+
+	t.Run("login con campos vacíos devuelve 400", func(t *testing.T) {
+		respuesta := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     "",
+				"contrasena": "",
+			},
+		)
+
+		if respuesta.Code != http.StatusBadRequest {
+			t.Fatalf(
+				"se esperaba 400 con campos vacíos, se obtuvo %d: %s",
+				respuesta.Code,
+				respuesta.Body.String(),
+			)
+		}
+	})
+
 	t.Run("las rutas anteriores de autenticación siguen funcionando igual", func(t *testing.T) {
 
 		respuestaLoginMalo := hacerPeticion(router, http.MethodPost, "/login", "", map[string]string{
@@ -586,6 +755,36 @@ func TestFlujoDeNegocioDeVehiculos(t *testing.T) {
 
 		if respuestaLoginMalo.Code != http.StatusUnauthorized {
 			t.Fatalf("se esperaba 401 con clave incorrecta, se obtuvo %d", respuestaLoginMalo.Code)
+		}
+
+		respuestaCorreoInexistente := hacerPeticion(
+			router,
+			http.MethodPost,
+			"/login",
+			"",
+			map[string]string{
+				"correo":     fmt.Sprintf("inexistente.%d@automarket.test", os.Getpid()),
+				"contrasena": "clave-incorrecta",
+			},
+		)
+
+		if respuestaCorreoInexistente.Code != http.StatusUnauthorized {
+			t.Fatalf(
+				"se esperaba 401 para correo inexistente, se obtuvo %d: %s",
+				respuestaCorreoInexistente.Code,
+				respuestaCorreoInexistente.Body.String(),
+			)
+		}
+
+		cuerpoClaveIncorrecta := decodificar(t, respuestaLoginMalo)
+		cuerpoCorreoInexistente := decodificar(t, respuestaCorreoInexistente)
+
+		if cuerpoClaveIncorrecta["error"] != cuerpoCorreoInexistente["error"] {
+			t.Errorf(
+				"los mensajes de error deben ser iguales: contraseña incorrecta=%v, correo inexistente=%v",
+				cuerpoClaveIncorrecta["error"],
+				cuerpoCorreoInexistente["error"],
+			)
 		}
 
 		comprobarUltimoAccounting(

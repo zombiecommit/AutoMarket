@@ -1,0 +1,11 @@
+{{define "nav"}}
+<nav class="menu">
+  <span class="marca">AutoMarket</span>
+  <ul>
+    {{range .Menu}}
+    <li><a href="{{.Ruta}}">{{.Texto}}</a></li>
+    {{end}}
+  </ul>
+  <span class="rol">Rol: {{.Rol}}</span>
+</nav>
+{{end}}

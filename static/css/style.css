@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -122,3 +123,95 @@ footer {
     display: block;
 }
 
+=======
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #172033;
+}
+
+/* ---------- navegación (nav.html) ---------- */
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  background: #172033;
+  color: white;
+}
+.menu .marca { font-weight: bold; font-size: 20px; }
+.menu ul { display: flex; gap: 18px; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; flex: 1; }
+.menu a { color: #cbd5e1; text-decoration: none; }
+.menu a:hover { color: white; }
+.menu .rol { font-size: 13px; color: #94a3b8; }
+.menu button.salir {
+  background: transparent; color: #cbd5e1; border: 1px solid #475569;
+  border-radius: 6px; padding: 5px 10px; cursor: pointer;
+}
+.menu button.salir:hover { color: white; border-color: white; }
+
+/* ---------- contenido ---------- */
+main.contenido { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+h1 { margin: 0 0 6px; }
+.subtitulo { margin: 0 0 24px; color: #64748b; }
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.tarjeta {
+  display: flex; flex-direction: column;
+  background: white; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 8px 24px #17203314;
+}
+.tarjeta img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: #e2e8f0; display: block; }
+.tarjeta .cuerpo { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.tarjeta h2 { margin: 0; font-size: 20px; }
+.tarjeta .precio { font-size: 20px; font-weight: bold; color: #1769aa; }
+.tarjeta .dato { color: #64748b; font-size: 14px; }
+.tarjeta .acciones { margin-top: auto; padding-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.boton, button.boton {
+  display: inline-block; padding: 10px 16px; border: 0; border-radius: 8px;
+  background: #1769aa; color: white; font-size: 15px; text-decoration: none; cursor: pointer;
+}
+.boton:hover { background: #12558a; }
+.boton.secundario { background: #e2e8f0; color: #172033; }
+.boton.secundario:hover { background: #cbd5e1; }
+
+.insignia { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; width: fit-content; }
+.insignia.pendiente_aprobacion { background: #fef3c7; color: #92400e; }
+.insignia.publicado { background: #dcfce7; color: #166534; }
+.insignia.vendido { background: #e2e8f0; color: #475569; }
+
+.mensaje { margin: 16px 0; font-size: 15px; }
+.mensaje.error { color: #b91c1c; }
+.mensaje.ok { color: #166534; }
+.vacio { padding: 40px; text-align: center; color: #64748b; background: white; border-radius: 14px; }
+
+/* ---------- detalle ---------- */
+.detalle { display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px #17203314; }
+.detalle img { width: 100%; height: 100%; object-fit: cover; min-height: 260px; background: #e2e8f0; }
+.detalle .info { padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+.detalle .info h1 { font-size: 30px; }
+.detalle .descripcion { line-height: 1.5; color: #334155; }
+@media (max-width: 720px) { .detalle { grid-template-columns: 1fr; } }
+
+/* ---------- formulario ---------- */
+.formulario { max-width: 520px; background: white; padding: 28px; border-radius: 14px; box-shadow: 0 8px 24px #17203314; }
+.formulario label { display: block; margin: 16px 0 6px; font-weight: bold; }
+.formulario input, .formulario textarea {
+  width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; font-family: inherit;
+}
+.formulario textarea { min-height: 100px; resize: vertical; }
+.formulario .boton { margin-top: 22px; width: 100%; padding: 13px; }
+
+.formulario .vista-previa { width: 100%; margin-top: 12px; border-radius: 8px; max-height: 260px; object-fit: cover; }
+.formulario .vista-previa[hidden] { display: none; }
+>>>>>>> origin/main

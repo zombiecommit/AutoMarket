@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"strings"
 
 	"AutoMarket/models"
@@ -9,6 +8,13 @@ import (
 )
 
 // BLOQUE: estados posibles de una publicacion
+//
+// Transiciones permitidas (cualquier otra se rechaza con 409):
+//
+//	pendiente_aprobacion --(administrador autoriza)--> publicado
+//	publicado            --(vendedor reporta venta)--> vendido
+//
+// Una publicacion pendiente NO puede venderse: primero debe publicarse.
 const (
 	EstadoPendiente = "pendiente_aprobacion"
 	EstadoPublicado = "publicado"
@@ -30,15 +36,15 @@ func RegistrarVehiculo(
 	descripcion = strings.TrimSpace(descripcion)
 
 	if marca == "" || modelo == "" {
-		return models.Vehiculo{}, errors.New("marca y modelo son obligatorios")
+		return models.Vehiculo{}, nuevoErrorValidacion("marca y modelo son obligatorios")
 	}
 
 	if anio <= 0 {
-		return models.Vehiculo{}, errors.New("el año del vehículo es inválido")
+		return models.Vehiculo{}, nuevoErrorValidacion("el año del vehículo es inválido")
 	}
 
 	if precio <= 0 {
-		return models.Vehiculo{}, errors.New("el precio debe ser mayor que cero")
+		return models.Vehiculo{}, nuevoErrorValidacion("el precio debe ser mayor que cero")
 	}
 
 	vehiculos, err := storage.CargarVehiculos()
@@ -135,11 +141,15 @@ func ReportarVehiculoVendido(vendedorID int, vehiculoID int) (models.Vehiculo, e
 	for i, vehiculo := range vehiculos {
 		if vehiculo.ID == vehiculoID {
 			if vehiculo.VendedorID != vendedorID {
-				return models.Vehiculo{}, errors.New("no puedes reportar la venta de una publicación que no te pertenece")
+				return models.Vehiculo{}, ErrPublicacionAjena
 			}
 
 			if vehiculo.Estado == EstadoVendido {
-				return models.Vehiculo{}, errors.New("la publicación ya está marcada como vendida")
+				return models.Vehiculo{}, ErrPublicacionYaVendida
+			}
+
+			if vehiculo.Estado != EstadoPublicado {
+				return models.Vehiculo{}, ErrPublicacionNoPublicada
 			}
 
 			vehiculos[i].Estado = EstadoVendido
@@ -152,7 +162,7 @@ func ReportarVehiculoVendido(vendedorID int, vehiculoID int) (models.Vehiculo, e
 		}
 	}
 
-	return models.Vehiculo{}, errors.New("publicación no encontrada")
+	return models.Vehiculo{}, ErrPublicacionNoEncontrada
 }
 
 // BLOQUE: autorizar publicacion (administrador)
@@ -166,7 +176,7 @@ func AutorizarPublicacion(vehiculoID int) (models.Vehiculo, error) {
 	for i, vehiculo := range vehiculos {
 		if vehiculo.ID == vehiculoID {
 			if vehiculo.Estado != EstadoPendiente {
-				return models.Vehiculo{}, errors.New("solo se pueden autorizar publicaciones pendientes de aprobación")
+				return models.Vehiculo{}, ErrPublicacionNoPendiente
 			}
 
 			vehiculos[i].Estado = EstadoPublicado
@@ -179,7 +189,7 @@ func AutorizarPublicacion(vehiculoID int) (models.Vehiculo, error) {
 		}
 	}
 
-	return models.Vehiculo{}, errors.New("publicación no encontrada")
+	return models.Vehiculo{}, ErrPublicacionNoEncontrada
 }
 
 // BLOQUE: eliminar publicacion (administrador)
@@ -199,12 +209,37 @@ func EliminarPublicacion(vehiculoID int) error {
 	}
 
 	if indice == -1 {
-		return errors.New("publicación no encontrada")
+		return ErrPublicacionNoEncontrada
 	}
+
+	foto := vehiculos[indice].Foto
 
 	vehiculos = append(vehiculos[:indice], vehiculos[indice+1:]...)
 
-	return storage.GuardarVehiculos(vehiculos)
+	if err := storage.GuardarVehiculos(vehiculos); err != nil {
+		return err
+	}
+
+	borrarArchivoFoto(foto)
+
+	return nil
+}
+
+// BLOQUE: saber si un usuario tiene publicaciones (en cualquier estado)
+// Lo usa EliminarUsuario para no dejar publicaciones huerfanas.
+func usuarioTienePublicaciones(usuarioID int) (bool, error) {
+	vehiculos, err := storage.CargarVehiculos()
+	if err != nil {
+		return false, err
+	}
+
+	for _, vehiculo := range vehiculos {
+		if vehiculo.VendedorID == usuarioID {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // BLOQUE: siguiente ID disponible

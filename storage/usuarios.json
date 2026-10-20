@@ -1,23 +1,30 @@
 [
-    {
-        "id": 1,
-        "nombre": "Juan",
-        "correo": "juan@test.com",
-        "contrasena_hash": "wudEVaGdfNdgp9KPMRBz4w==:I5TVgV+AM8+ourPceb5Sybmb5qrAPJbJU4Nx1pa5qag=",
-        "rol": "vendedor"
-    },
-    {
-        "id": 2,
-        "nombre": "Prueba Accounting",
-        "correo": "prueba.accounting@example.com",
-        "contrasena_hash": "7vF+SZ9clV2d0wViW48BlA==:Dc9Wpm2lufG57PjebuUpzJGcAYuYzPkfWtiHlYcXGqA=",
-        "rol": "vendedor"
-    },
-    {
-        "id": 3,
-        "nombre": "Administrador",
-        "correo": "admin@test.com",
-        "contrasena_hash": "H2MTurxcCxSKoEum05gw6A==:ujUEqe3Tq+Xg0hwwXF00pOc8Q7IQv2qxCwfltcjVE8E=",
-        "rol": "administrador"
-    }
+  {
+    "id": 1,
+    "nombre": "Juan",
+    "correo": "juan@test.com",
+    "contrasena_hash": "wudEVaGdfNdgp9KPMRBz4w==:I5TVgV+AM8+ourPceb5Sybmb5qrAPJbJU4Nx1pa5qag=",
+    "rol": "vendedor"
+  },
+  {
+    "id": 2,
+    "nombre": "Prueba Accounting",
+    "correo": "prueba.accounting@example.com",
+    "contrasena_hash": "7vF+SZ9clV2d0wViW48BlA==:Dc9Wpm2lufG57PjebuUpzJGcAYuYzPkfWtiHlYcXGqA=",
+    "rol": "vendedor"
+  },
+  {
+    "id": 3,
+    "nombre": "Administrador",
+    "correo": "admin@test.com",
+    "contrasena_hash": "H2MTurxcCxSKoEum05gw6A==:ujUEqe3Tq+Xg0hwwXF00pOc8Q7IQv2qxCwfltcjVE8E=",
+    "rol": "administrador"
+  },
+  {
+    "id": 4,
+    "nombre": "Enrique lozano abella",
+    "correo": "c_enrique@hotmail.es",
+    "contrasena_hash": "P+xHuAcIuh0zi7gDMOb8CA==:qEW8t8/s2hjbYUyfSpd9IdPSa4Wlj8AR1eEkmB6eBek=",
+    "rol": "vendedor"
+  }
 ]

@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
+	"AutoMarket/middleware"
 	"AutoMarket/services"
 
 	"github.com/gin-gonic/gin"
@@ -23,28 +25,31 @@ func IniciarSesion(c *gin.Context) {
 		return
 	}
 
+	if strings.TrimSpace(request.Correo) == "" ||
+		strings.TrimSpace(request.Contrasena) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "el correo y la contraseña son obligatorios",
+		})
+		return
+	}
+
 	usuario, err := services.AutenticarUsuario(
 		request.Correo,
 		request.Contrasena,
 	)
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo iniciar sesión")
 		return
 	}
-
 	token, err := services.CrearSesion(usuario)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		responderError(c, err, "no se pudo generar la sesión")
 		return
 	}
 
-	c.Set("usuario", usuario)
+	c.Set(middleware.ClaveUsuarioContexto, usuario)
 
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "inicio de sesión exitoso",

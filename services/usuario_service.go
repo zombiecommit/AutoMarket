@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"errors"
+
 	"strings"
 
 	"AutoMarket/models"
@@ -16,10 +16,10 @@ const iteraciones = 100000
 
 func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error) {
 	nombre = strings.TrimSpace(nombre)
-	correo = strings.TrimSpace(correo)
+	correo = strings.ToLower(strings.TrimSpace(correo))
 
 	if nombre == "" || correo == "" || contrasena == "" {
-		return models.Usuario{}, errors.New("todos los campos son obligatorios")
+		return models.Usuario{}, nuevoErrorValidacion("todos los campos son obligatorios")
 	}
 
 	usuarios, err := storage.CargarUsuarios()
@@ -28,8 +28,8 @@ func RegistrarUsuario(nombre, correo, contrasena string) (models.Usuario, error)
 	}
 
 	for _, usuario := range usuarios {
-		if usuario.Correo == correo {
-			return models.Usuario{}, errors.New("el correo ya está registrado")
+		if strings.EqualFold(usuario.Correo, correo) {
+			return models.Usuario{}, ErrCorreoDuplicado
 		}
 	}
 
@@ -69,6 +69,11 @@ func generarHash(contrasena string) (string, error) {
 }
 
 // BLOQUE: eliminar usuario (administrador)
+// Politica: no se elimina a un usuario que aun tiene publicaciones (en
+// cualquier estado). El administrador debe eliminarlas antes, una a una,
+// con DELETE /vehiculos/:id. Asi el catalogo nunca muestra publicaciones
+// huerfanas, no hay estados parciales entre usuarios.json y vehiculos.json,
+// y cada publicacion eliminada queda registrada en Accounting.
 func EliminarUsuario(usuarioID int) error {
 	usuarios, err := storage.CargarUsuarios()
 	if err != nil {
@@ -85,7 +90,16 @@ func EliminarUsuario(usuarioID int) error {
 	}
 
 	if indice == -1 {
-		return errors.New("usuario no encontrado")
+		return ErrUsuarioNoEncontrado
+	}
+
+	tienePublicaciones, err := usuarioTienePublicaciones(usuarioID)
+	if err != nil {
+		return err
+	}
+
+	if tienePublicaciones {
+		return ErrUsuarioConPublicaciones
 	}
 
 	usuarios = append(usuarios[:indice], usuarios[indice+1:]...)
@@ -108,19 +122,6 @@ func siguienteID(usuarios []models.Usuario) int {
 	}
 
 	return mayorID + 1
-}
-
-func GenerarHashParaAdmin(contrasena string) (string, error) {
-	salt := make([]byte, 16)
-
-	if _, err := rand.Read(salt); err != nil {
-		return "", err
-	}
-
-	hash := pbkdf2SHA256([]byte(contrasena), salt, iteraciones, 32)
-
-	return base64.StdEncoding.EncodeToString(salt) + ":" +
-		base64.StdEncoding.EncodeToString(hash), nil
 }
 
 func pbkdf2SHA256(password, salt []byte, iteraciones, longitud int) []byte {

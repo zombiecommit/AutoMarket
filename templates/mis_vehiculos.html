@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis vehículos | AutoMarket</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {{template "nav" .}}
+    <main class="contenido">
+        <h1>Mis vehículos</h1>
+        <p class="subtitulo">Tus publicaciones y su estado. Solo puedes reportar la venta cuando están publicadas.</p>
+
+        <p id="mensaje" class="mensaje" role="status">Cargando tus vehículos...</p>
+        <section id="lista" class="rejilla"></section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        const mensaje = document.getElementById("mensaje");
+        const lista = document.getElementById("lista");
+
+        function avisar(texto, clase) {
+            mensaje.className = "mensaje " + (clase || "");
+            mensaje.textContent = texto;
+        }
+
+        async function reportarVenta(vehiculo) {
+            if (!confirm(`¿Marcar ${vehiculo.marca} ${vehiculo.modelo} como vendido?`)) return;
+
+            const { ok, datos } = await AutoMarket.api(`/vehiculos/${vehiculo.id}/vender`, {
+                method: "PATCH", requiereSesion: true,
+            });
+
+            if (!ok) {
+                avisar(datos.error || "No se pudo reportar la venta.", "error");
+                return;
+            }
+
+            avisar("Publicación marcada como vendida.", "ok");
+            cargar();
+        }
+
+        function tarjeta(v) {
+            const t = AutoMarket.el("article", "tarjeta");
+            t.appendChild(AutoMarket.foto(v));
+
+            const cuerpo = AutoMarket.el("div", "cuerpo");
+            cuerpo.appendChild(AutoMarket.el("h2", "", `${v.marca} ${v.modelo}`));
+            cuerpo.appendChild(AutoMarket.el("span", "dato", `Año: ${v.anio}`));
+            cuerpo.appendChild(AutoMarket.el("span", "precio", AutoMarket.precio(v.precio)));
+            cuerpo.appendChild(AutoMarket.el("span", "insignia " + v.estado, AutoMarket.ETIQUETAS_ESTADO[v.estado] || v.estado));
+
+            if (v.estado === "publicado") {
+                const acciones = AutoMarket.el("div", "acciones");
+                const boton = AutoMarket.el("button", "boton", "Marcar como vendido");
+                boton.type = "button";
+                boton.addEventListener("click", () => reportarVenta(v));
+                acciones.appendChild(boton);
+                cuerpo.appendChild(acciones);
+            }
+
+            t.appendChild(cuerpo);
+            return t;
+        }
+
+        async function cargar() {
+            if (!AutoMarket.token()) {
+                window.location.href = "/login";
+                return;
+            }
+
+            try {
+                const { ok, status, datos } = await AutoMarket.api("/vehiculos/mios", { requiereSesion: true });
+
+                if (!ok) {
+                    avisar(status === 403 ? "Tu rol no puede ver publicaciones propias." : (datos.error || "No se pudieron cargar tus vehículos."), "error");
+                    return;
+                }
+
+                lista.replaceChildren();
+                const vehiculos = datos.vehiculos || [];
+
+                if (vehiculos.length === 0) {
+                    avisar("Aún no has publicado vehículos.");
+                    return;
+                }
+
+                if (!mensaje.classList.contains("ok")) mensaje.textContent = "";
+                vehiculos.forEach((v) => lista.appendChild(tarjeta(v)));
+            } catch {
+                avisar("No se pudo conectar con AutoMarket. Intenta de nuevo.", "error");
+            }
+        }
+
+        cargar();
+    </script>
+</body>
+</html>

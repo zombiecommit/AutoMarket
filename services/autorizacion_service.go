@@ -44,9 +44,3 @@ func TienePermiso(rol, operacion string) bool {
 
 	return operacionesDelRol[operacion]
 }
-
-//BLOQUE: verificar rol valido
-func EsRolValido(rol string) bool {
-	_, existe := permisosPorRol[rol]
-	return existe
-}

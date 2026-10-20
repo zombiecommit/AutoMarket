@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"AutoMarket/models"
+	"AutoMarket/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,4 +23,15 @@ func ObtenerUsuarioDeContexto(c *gin.Context) (models.Usuario, bool) {
 	}
 
 	return usuario, true
+}
+
+// BLOQUE: rol de la peticion actual
+func RolDeContexto(c *gin.Context) string {
+	usuario, autenticado := ObtenerUsuarioDeContexto(c)
+
+	if !autenticado {
+		return services.RolVisitante
+	}
+
+	return usuario.Rol
 }
